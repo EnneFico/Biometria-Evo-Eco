@@ -1,0 +1,30 @@
+
+setwd("C:/BIOM")
+#VETTORI
+#esistono tre principali funzioni per generare vettori in R
+#c, seq, rep
+
+#c
+v<-c(1,3,7)
+v<-c(1:5)
+v<-c(1:5,12:16,35:43)
+s<-c("a","j","o")
+
+#seq
+w<-seq(4,10)
+w<-seq(4,10,2)
+w<-seq(0.3,0.5,0.001)
+
+#rep
+z=rep(1,100)
+z=rep(c(7,9,13),3)
+z=rep(c(7,9,13),1:3)
+
+rep(1:4, 2)
+rep(1:4, each = 2)       # not the same.
+rep(1:4, c(2,2,2,2))     # same as second.
+rep(1:4, c(2,1,2,1))
+
+rep(1:4, each = 2, len = 4)    # first 4 only.
+rep(1:4, each = 2, len = 10)   # 8 integers plus two recycled 1's.
+rep(1:4, each = 2, times = 3)  # length 24, 3 complete replications
