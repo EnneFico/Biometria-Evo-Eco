@@ -28,3 +28,118 @@ rep(1:4, c(2,1,2,1))
 rep(1:4, each = 2, len = 4)    # first 4 only.
 rep(1:4, each = 2, len = 10)   # 8 integers plus two recycled 1's.
 rep(1:4, each = 2, times = 3)  # length 24, 3 complete replications
+
+#vettori interni
+
+letters
+LETTERS
+month.name
+
+#funzione per unire oggetti
+
+#paste
+#output=vettore di caratteri
+
+labels=paste(rep("A",10),1:10,sep="")
+labels
+
+#vettori + variabili fattoriali/"qualitative"
+f=factor(c(rep("treatmentA",5),rep("treatmentB",3),"treatmentC"))
+f
+
+#funzione per riconoscere il tipo di vettore
+#class
+
+class(labels) # character
+class(v) # integer
+class(w) # numeric
+class(f) # factor
+
+#Esercizio 1. Costruire un vettore che contiene i numeri interi dispari tra 1 e 15, e ripetere la
+#sequenza tre volte. Controllare la classe del vettore.
+
+es1 <- rep(seq(1,15,2),3)
+
+#Esercizio 2. Incollare elemento per elemento: a) le lettere maiuscole dell’alfabeto, b) i numeri interi
+#da 1 a 26. Controllare la classe del vettore. 
+
+es2 <- paste(LETTERS,1:26,sep="")
+class(es2)
+
+#VETTORI NUMERICI – STATISTICHE DI BASE
+
+length(z) # numero degli elementi del vettore (notare che funziona con tutti i tipi di vettore)
+min(z) # valore minimo del vettore
+max(z) # valore massimo del vettore
+sum(z) # somma di tutti i valori del vettore
+mean(z) # media dei valori del vettore
+median(z) # mediana dei valori del vettore
+var(z) # varianza dei valori del vettore
+sd(z) # deviazione standard dei valori del vettore (notare che sd è la radice quadrata di var) 
+
+#quantili empirici
+#(non confondere con quelli teorici)
+
+#Un buon modo per avere (quasi) tutte le statistiche di base in un colpo solo è usare summary
+summary(z)
+
+#VETTORI NUMERICI – CAMPIONAMENTO CASUALE E SELEZIONE DI ELEMENTI
+
+#La funzione sample estrae elementi a caso da un vettore (non necessariamente numerico):
+
+r <- sample(1:10,6) # estrae 6 numeri a caso dalla sequenza di numeri interi da 1 a 10 
+r=sample(1:10,6,replace=T) # come sopra, ma con re-immissione (cioè la possibilità di estrarre un singolo numero più di una volta) 
+t=sample(c("T","C"),10,replace=T) #dove simuliamo 10 successivi lanci di moneta. 
+
+#selezionare determinati elementi di un vettore
+
+#parentesi quadre []
+
+r[1] # estrae il primo elemento del vettore r
+r[c(1,3)] # estrae il primo ed il terzo elemento di r
+
+#le parentesi quadre possono essere utilizzate per selezionare elementi che verificano una certa condizione:
+
+b=r>5 # genera un vettore booleano (TRUE/FALSE) che identifica quali elementi di r verificano (TRUE) o meno (FALSE) la condizione di essere maggiori di 5;
+r1=r[b] # estraiamo in r1 soltanto gli elementi di r che verificano la condizione di cui sopra. 
+
+#sintetizzati in una singola linea di comando:
+
+r1=r[r>5] 
+
+#costruire un filtro in R. 
+
+#Esercizio3. Si generi un vettore che contiene tutti i numeri decimali da 0.001 a 1 con un incremento 
+#di 0.001 (cioè 0.001, 0.002, …, 0.999, 1), dopodiché si estragga un secondo vettore contenentecento 
+#elementi random del primo. Si calcolino quindi le statistiche di base (utilizzando le funzioni
+#di cui sopra) sul secondo vettore. Per quel che riguarda i quantili empirici, si calcolino tutti i decili
+#del vettore. Infine, si selezionino (dal secondo vettore) tutti gli elementi più piccoli di 0.3. 
+
+e3a <- seq(0.001,1,0.001)
+e3b <- sample(e3a,replace=T)
+
+length(e3b) # numero degli elementi del vettore (notare che funziona con tutti i tipi di vettore)
+min(e3b) # valore minimo del vettore
+max(e3b) # valore massimo del vettore
+sum(e3b) # somma di tutti i valori del vettore
+mean(e3b) # media dei valori del vettore
+median(e3b) # mediana dei valori del vettore
+var(e3b) # varianza dei valori del vettore
+sd(e3b) # deviazione standard dei valori del vettore (notare che sd è la radice quadrata di var) 
+
+summary(e3b)
+
+#due modi:
+#decili
+
+quantile(e3b,c(0.0,0.10,0.20,0.30,0.4,0.5,0.6,0.7,0.8,0.9,1))
+
+quantile(e3b, prob = seq(0, 1, length = 11), type = 5) #The generic function quantile produces sample quantiles 
+#corresponding to the given probabilities. The smallest observation corresponds to a probability of 0 and the 
+#largest to a probability of 1.
+
+e3c = e3b[e3b<0.3]
+
+
+#MATRICI
+
