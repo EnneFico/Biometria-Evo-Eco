@@ -142,4 +142,22 @@ e3c = e3b[e3b<0.3]
 
 
 #MATRICI
+#Esistono alcune funzioni per creare matrici in R, in particolare le funzioni matrix, rbind e cbind.
+
+#linea di comando crea una matrice che contiene i numeri interi da 1 a 12 secondo 3 righe
+#(e 4 colonne):
+
+M=matrix(1:12,nrow=3,byrow=T) # l’opzione ‘byrow=T’ indica che la matrice sarà riempita
+#seguendo le righe 
+
+#Possiamo modificare i nomi di righe e colonne della matrice come segue:
+rownames(M)=c("A","B","C")
+colnames(M)=c("I","II","III","IV") 
+
+#trasporre la matrice 
+M2=t(M) 
+
+#funzioni "esplorative"
+dim(M) # restituisce il numero di righe e di colonne della matrice
+class(M) # identifica la classe dell’oggetto M (‘matrix’) 
 
