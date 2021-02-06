@@ -237,3 +237,113 @@ str(es5) # restituisce informazioni sulla struttura dei dati
 summary(es5) # restituisce le statistiche di base per ogni variabile del data frame (si noti il diverso
 #comportamento con variabili numeriche e variabili qualitative)
 
+#DATA IMPORT/EXPORT 
+#importare il dataset “alkfos.txt”:
+
+#per ottenere il percorso della "present working directory":
+ getwd()
+#impostare un nuova wd:
+ setwd("C:/BIOM")
+ 
+ #importazione
+#importare l’input file in un data frame che chiameremo “data”: 
+ data=read.table("alkfos.txt",header=T) #L’argomento ‘header=T’ indica che la prima riga del dataset importato contiene l’‘header’
+ #il nome del file deve essere comprensivo di estensione
+#la funzione read.table ha molti altri argomenti utili:
+ #separatore di testo "sep="
+ #separatore decimale "dec="
+ 
+#altra funzione per importare data frame:
+ #read.csv read.csv2
+ #1) il separatore di testo è “,” e il separatore decimale è “.” (setting internazionale, cui corrisponde la funzione read.csv)
+ #2) il separatore di testo è “;” e il separatore decimale è “,” (setting Italiano, cui corrisponde la  funzione read.csv2).
+ 
+#esplorare il data frame importato con le solite funzioni:
+ class(data)
+ str(data)
+ summary(data)
+
+ #esportazione
+#write.table
+ #Questa funzione si applica a data frames (o matrici) presenti nel workspace e restituisce un semplice 
+ #file di testo che viene salvato nella solita directory di lavoro.
+ 
+ #esportare il dataset già importato (alkfos.txt) col formato di un file .csv secondo il setting italiano:
+ write.table(data,file="alkfos.csv",row.names=F,col.names=T,quote=F,sep=";",dec=",") 
+
+ #Il primo argomento è il data frame che vogliamo esportare, 
+ #il secondo (file) è il nome che intendiamo dare al dataset esportato (inclusivo di estensione);‘row.names=F’ significa che i nomi
+ #delle righe non saranno inclusi nel file esportato, 
+ #terzo argomento ‘col.names=T’ significa che i nomi delle colonne (cioè l’header) saranno inclusi; 
+ #il quarto ‘quote=F’ viene inserito per evitare che R introduca apici (‘’) intorno ad ogni carattere/valore fattoriale (che è il comportamento default).
+ #il quinto e il sesto ‘sep=";"’#‘dec=","’ introducono gli opportuni separatori di testo.   
+ 
+#Esercizio6. Esportare lo stesso dataset in un file .csv con setting internazionale. 
+ write.table(data,file="alkfosINT.csv",row.names=F,col.names=T,quote=F,sep=",",dec=".")
+
+
+#DATA FRAMES – SELEZIONE E MODIFICA DI ELEMENTI
+ 
+ #Trattandosi di oggetti bidimensionali, serviranno due indici. La sintassi è la seguente: 
+ #il.mio.data.frame[numero/i di riga,numero/i di colonna] 
+ 
+ data[1,1] # estrae il primo elemento della prima colonna di data
+ data[3,2] # estrae il terzo elemento della seconda colonna di data
+ data[1:3,2:5] # estrae i primi tre elementi delle colonne da 2 a 5
+ data[1,] # estrae tutti gli elementi della prima riga
+ data[,1] # estrae tutti gli elementi della prima colonna
+ data[,c(1,3,5)] # estrae tutti gli elementi delle colonne 1, 3 e 5
+ data[,-c(1,3,5)] # estrae tutti gli elementi di data ad eccezione delle colonne 1, 3 e 5 
+
+ #è possibile selezionare una colonna di un data frame anche sulla base del  suo nome utilizzando il simbolo $ 
+ 
+ data$c0 # seleziona la colonna (variabile) chiamata ‘c0’
+#Gli stessi indici possono essere utilizzati per modificare elementi del data frame: 
+ data[3,2]=100 # sostituisce l’elemento selezionato col valore 100
+ data[,4]=data[,6] # sostituisce il contenuto della colonna 4 con quello della colonna 6
+ data$c18=data$c24 # sostituisce il contenuto della colonna ‘c18’ con quello della colonna ‘c24’
+
+ 
+ #Esercizio. Il file di Excel “rats.xls” contiene un piccolo dataset. Vogliamo:
+  # 1) esportare (da Excel) il suo contenuto come semplice file di testo (.txt o .csv), 
+  # 2) importare il file di testo in R utilizzando la funzione appropriata, 
+  # 3) calcolare media, varianza e deviazione standard per tutte le variabili del dataset, 
+  # 4) rimuovere la seconda colonna, 
+  # 5) esportare il file modificato come file di testo (.csv se si è inizialmente importato un .txt, .txt se si è inizialmente importato un .csv)
+ 
+ rats=read.csv("rats.csv",header=T)
+rats
+summary(rats)
+
+mean(rats[,1]) # media dei valori del vettore
+var(rats[,1]) # varianza dei valori del vettore
+sd(rats[,1]) # deviazione standard
+
+mean(rats[,2]) # media dei valori del vettore
+var(rats[,2]) # varianza dei valori del vettore
+sd(rats[,2]) # deviazione standard
+
+mean(rats[,3]) # media dei valori del vettore
+var(rats[,3]) # varianza dei valori del vettore
+sd(rats[,3]) # deviazione standard
+
+mean(rats[,4]) # media dei valori del vettore
+var(rats[,4]) # varianza dei valori del vettore
+sd(rats[,4]) # deviazione standard
+
+rats_modified <- rats[,c(1,3,4)]
+rats_modified
+
+write.table(rats_modified,file="rats_modified.txt",row.names=F,col.names=T,quote=F,sep=",",dec=".")
+prova=read.table("rats_modified.txt",sep=",",dec=".",header = T)
+prova
+
+#SALVARE LA SESSIONE 
+
+#Al termine delle operazioni, il workspace si sarà popolato di una serie di oggetti. Per avere una lista degli stessi:
+  ls()
+#Se si desidera salvare una copia del workspace così com’è nel suo stato attuale, si può scrivere:
+  save.image(file="1_basic.RData") 
+#Il salvataggio del workspace non implica il salvataggio delle linee di comando lanciate durante la sessione. 
+  #Per avere copia della ‘history’ dei comandi, si può scrivere:   
+  savehistory("1_basic.txt")
