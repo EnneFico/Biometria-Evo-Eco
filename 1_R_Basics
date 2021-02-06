@@ -161,3 +161,79 @@ M2=t(M)
 dim(M) # restituisce il numero di righe e di colonne della matrice
 class(M) # identifica la classe dell’oggetto M (‘matrix’) 
 
+#rbind
+#combina vettori di egual lunghezza secondo le righe
+
+#cbind
+#combina vettori di egual lunghezza secondo le colonne
+
+a=1:7
+b=8:14
+abc=rbind(a,b) # combina i vettori a e b come righe di una matrice
+abr=cbind(a,b) # combina i vettori a e b come colonne di una matrice 
+
+#Si noti che i nomi delle righe (nel caso di rbind) o i nomi delle colonne (nel caso di cbind)
+#corrisponderanno ai nomi dei vettori combinati. 
+
+#Esercizio4
+#Generare una matrice che contiene: 
+#a) numeri dispari da 1 a 10; 
+#b) numeri pari da 1 a 10;
+#c) cinque ripetizioni del numero 0. La matrice dovrà avere 5 righe e dovrà essere riempita per
+#colonne. Infine, modificare nomi di colonne e righe a piacimento. 
+
+v1 <- c(0,3,5,7,0) 
+v2 <- c(1,0,6,0,9)
+v3 <- c(2,4,0,8,10)
+
+es4 <- cbind(v1,v2,v3)
+
+rownames(es4)=c("A","B","C","D","E")
+colnames(es4)=c("I","II","III")
+
+es4
+
+#DATA FRAMES
+
+#sono ideati per contenere/organizzare i dati sperimentali sui quali dovranno essere svolte le analisi statistica.
+#deve consentire la coesistenza all’interno dello stesso oggetto
+
+#esempio
+var1=c(1:10)
+var2=c(16:25)
+var3=c(rep("a",2), rep("b",5), rep("c",3))
+DF=data.frame(var3,var2,var1) 
+
+DF
+
+#funzioni per esplorare le caratteristiche ed il contenuto di un data frame
+class(DF) # classe dell’oggetto
+dim(DF) # numero di osservazioni e variabili
+names(DF) # restituisce i nomi delle variabili (colonne)
+head(DF) # mostra le prime righe del data frame (di default le prime 6)
+tail(DF) # mostra le ultime righe del data frame (di default le ultime 6)
+str(DF) # restituisce informazioni sulla struttura dei dati
+summary(DF) # restituisce le statistiche di base per ogni variabile del data frame (si noti il diverso
+#comportamento con variabili numeriche e variabili qualitative)
+
+#Esercizio5. Generare un data frame con le seguenti variabili: 
+#a) numeri interi da 1 a 50; 
+#b) una variabile logica con 30 valori TRUE e 20 valori FALSE; 
+#c) cinque ripetizioni delle ultime 10 lettere maiuscole in ordine alfabetico. 
+#Esplorare il data frame utilizzando le funzioni presentate sopra.
+
+va1 <- seq(1,50)
+va2 <- c(rep("TRUE",30),rep("FALSE",20))
+va3 <- rep(LETTERS[17:26],5)
+es5 <- data.frame(va3,va2,va1)
+es5
+
+class(es5) # classe dell’oggetto
+dim(es5) # numero di osservazioni e variabili
+names(es5) # restituisce i nomi delle variabili (colonne)
+head(es5) # mostra le prime righe del data frame (di default le prime 6)
+tail(es5) # mostra le ultime righe del data frame (di default le ultime 6)
+str(es5) # restituisce informazioni sulla struttura dei dati
+summary(es5) # restituisce le statistiche di base per ogni variabile del data frame (si noti il diverso
+#comportamento con variabili numeriche e variabili qualitative)
+
