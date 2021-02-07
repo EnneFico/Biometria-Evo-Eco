@@ -1,0 +1,229 @@
+#GRAFICI E FUNZIONI GRAFICHE
+
+#generiamo un vettore che possa corrispondere al summary di una variabile qualitativa (o fattoriale)
+#cioè al conto delle frequenze dei diversi stati della variabile qualitativa
+ 
+ #L’esempio proposto corrisponde alle classi di passeggeri presenti sul Titanic al momento del naufragio:
+
+titanclas=c(325,285,706,885)
+names(titanclas)=c("1st","2nd","3rd","Crew")
+
+   #e l’obiettivo è associare le quattro classi della variabile qualitativa (prima classe,
+   #seconda classe, terza classe, equipaggio) alle rispettive frequenze. 
+
+#VARIABILE QUALITATIVA
+
+    #GRAFICO A TORTA
+pie(titanclas) 
+
+#È possibile modificare il plot aggiungendo specifici argomenti alla funzione, ad esempio: 
+pie(titanclas,main="Passengers of Titanic",col=c("white","yellow","orange","darkred"))
+
+#L’argomento ‘main’ introduce un titolo al plot
+#l’argomento col permette di definire i colori desiderati per le quattro classi di dati.
+
+#PALETTE DI COLORI
+#Per un elenco di tutti i colori codificati in R:
+  colors() 
+
+  #esistono numerose funzioni per definire palette di colori specifici.
+  pal1 = rainbow(4) #restituisce quattro colori equispaziati nello spazio RGB (Red Green Blue)
+  pal2 = heat.colors(4) #restituisce quattro colori ‘caldi’ equispaziati nello spazio RGB.
+  pal3 = grey(seq(0,1,0.33)) #la funzione ‘grey’ crea palette in bianco e nero.
+  
+  #Le palette così generate possono essere passate alle funzioni grafiche attraverso l’argomento ‘col’: 
+  pie(titanclas,main="Passengers of Titanic",col=pal1) # plot con pal1
+  pie(titanclas,main="Passengers of Titanic",col=pal2) # plot con pal2
+  
+  #esportare/salvare il grafico si utilizza la funzione dev.copy2pdf:
+    dev.copy2pdf(file="pieplot_col.pdf")   
+  
+  pie(titanclas,main="Passengers of Titanic",col=pal3)  # plot con pal3
+  dev.copy2pdf(file="pieplot_bw.pdf") # salva il contenuto del device in un file .pdf 
+
+#pacchetto per altre palette di colori    
+install.packages("RColorBrewer") # si noti che il nome del pacchetto va fra apici   
+library(RColorBrewer) 
+display.brewer.all()  
+
+   pal4=brewer.pal(4,"Blues") #palette a sfumature di blu
+pie(titanclas,main="Passengers of Titanic",col=pal4) # plot con pal4
+dev.copy2pdf(file="pieplot_blues.pdf")
+
+
+    #GRAFICO A BARRE
+
+#Si tratta di una classica rappresentazione in cui lungo l’asse x si trovano le classi della
+#variabile qualitativa e lungo l’asse y le corrispondenti frequenze ed ogni dato è rappresentato con una
+#barra la cui lunghezza è proporzionale alla frequenza.
+
+barplot(titanclas) # grafico a barre in versione default
+barplot(titanclas,main="Passengers of Titanic",col=pal1) # aggiunge titolo ed usa la pal1
+barplot(titanclas,main="Passengers of Titanic",col=c("white","yellow","orange","darkred")) # come sopra, ma con colori definiti ‘a mano’
+barplot(titanclas,main="Passengers of Titanic",col=pal2,hor=T) # l’argomento ‘hor=T’ produce una versione orizzontale del barplot
+dev.copy2pdf(file="barplot_horiz.pdf") # salva l’ultimo grafico in un file .pdf 
+
+#DUE VARIABILI QUALITATIVE – GRAFICO A MOSAICO 
+#Il cosiddetto ‘mosaic plot’ consente la rappresentazione di due variabili qualitative – le cui frequenze
+#sono calcolate sullo stesso dataset – allo stesso tempo. 
+
+#Un classico esempio è quello del dataset ‘caith’, che contiene le frequenze relative a colore degli occhi
+#e colore dei capelli nella popolazione di Caithness, in scozia. Il dataset è incluso nella library MASS,
+#uno dei pacchetti che fanno parte dell’installazione di base di R. Per recuperarlo:
+
+library(MASS)
+data(caith)
+caith
+
+#Per ottenere il grafico a mosaico: 
+mosaicplot(caith,main="Colours of Hair and Eye for 5387 inhabitants of Caithness")
+mosaicplot(caith,main="Colours of Hair and Eye for 5387 inhabitants of Caithness",shade=T) #e l’argomento ‘shade=T’ per introdurre la
+#colorazione dei vari rettangoli sulla base dei residui, cioè sulla differenza fra valori osservati (valori presenti nella tabella) 
+#e valori attesi (frequenze attese se i due caratteri considerati fossero completamente indipendenti)
+
+#In questo modo è possibile evidenziare quali sono le associazioni fra le
+#due variabili che si presentano con maggiore o minore frequenza rispetto all’ipotesi di indipendenza. 
+
+   #Questo particolare grafico può essere considerato una rappresentazione del test del chi-quadro, che
+   #vedremo in seguito. 
+
+#UNA VARIABILE QUANTITATIVA – ISTOGRAMMA E BOXPLOT 
+
+#Variabili quantitative sono quelle variabili che normalmente sono misurate e rappresentate tramite valori numerici.
+
+  #Il dataset ‘crabs’, anch’esso contenuto nella library MASS, contiene alcune variabili
+  #quantitative relative a diverse misure morfologiche in 200 individui di granchio:
+
+data(crabs) 
+head(crabs)
+
+#Le variabili quantitative sono: 
+  #frontal lobe size (FL), 
+  #rear width (RW), 
+  #carapace length (CL), 
+  #carapacewidth (CW) 
+  #body depth (BD),
+  #tutte quante in millimetri. 
+  #Esistono inoltre due variabili qualitative relative al colore degli individui 
+  #– blu (B) o arancione (O) – e al sesso – maschio (M) o femmina (F) –
+  #che individuano quattro gruppi di granchi composti da 50 individui ciascuno.
+
+#selezionare subsets specifici di dati attraverso le variabili qualitative
+
+caleor=crabs$CL[crabs$sp=="O"]
+
+#Qui: a) selezioniamo la colonna CL con l’operatore $, quindi b) applichiamo un filtro sulla base del
+#contenuto della colonna ‘sp’, cioè quella dove si specifica se i granchi sono blu o arancioni. Lo
+#facciamo utilizzando gli indici fra parentesi quadre, dove introduciamo un’operazione logica, cioè
+#chiediamo se i valori di quella variabile sono uguali ad “O” (arancione) o meno. Il doppio uguale (==)
+#si usa ogni qual volta chiediamo ad R di verificare una condizione di uguaglianza! Il risultato, l’oggetto
+#caleor, è un vettore di valori numerici.
+
+#Rappresentiamo ora graficamente i valori di CL selezionati.
+
+ #ISTOGRAMMA
+
+#L’istogramma è un metodo di rappresentazione grafica di una variabile continua basato sulla sua
+#distribuzione in diverse classi di grandezza. È costituito da rettangoli adiacenti le cui basi sono allineate
+#su un asse orientato, corrispondente ai valori della variabile considerata. La larghezza dei rettangoli
+#corrisponde all'ampiezza delle classi corrispondenti, mentre l'altezza è funzione della frequenza, cioè
+#del numero di individui che cadono nelle diverse classi.
+
+#Non va confuso col barplot, che è invece una
+#rappresentazione per variabili qualitative!
+
+#La funzione ‘hist’ consente di disegnare istogrammi su R: 
+
+hist(caleor,main="Histogram of caleor") 
+
+#A meno di diverse specificazioni, le classi di grandezza sono equispaziate e stabilite automaticamente dall’algoritmo
+
+#La rappresentazione
+#default prevede che l’altezza dei rettangoli sia scalata (asse y) sulla base delle frequenze assolute 
+#(cioè sul numero di osservazioni che ricadono in ciascuna classe). 
+
+#Densità di frequenza: La densità di frequenza corrisponde al rapporto fra la frequenza relativa di una classe (cioè frequenza
+#assoluta diviso totale) e l’ampiezza della stessa classe.
+# Se si desidera che la scala (asse y) si basi sulla densità di frequenza, si usa l’argomento ‘freq’:
+
+hist(caleor,freq=F,main="Histogram of caleor")
+
+#In questo modo, l’area di ogni rettangolo è esattamente uguale alla probabilità che ha un’osservazione di cadere in quella determinata classe.
+#a) diventa necessario se le osservazioni sono raggruppate in classi di grandezza diversa, 
+#b) corrisponde al concetto di ‘densità di probabilità’ che si ritrova nelle distribuzioni continue e che vedremo in seguito. 
+
+#è anche possibile aggiungere al grafico una ‘curva di densità’:
+#una curva che stima come si distribuirebbero i dati se il numero di classi fosse grandissimo
+
+d=density(caleor)
+lines(d)
+
+dev.copy2pdf(file="hist_caleor1.pdf") #salvare il grafico ottenuto in un file .pdf: 
+
+#Nel caso che l’ampiezza delle classi automaticamente stimata da R non fosse soddisfacente, è possibile
+#modificarla utilizzando l’argomento ‘breaks’.
+
+#vettore contenente gli intervalli desiderati
+
+br=seq(10, 50,10) # in questo caso definiamo classi equispaziate di ampiezza 10 
+
+#nuovo grafico
+hist(caleor, breaks=br,freq=F,main="Histogram of caleor",col=grey(0.8)) 
+
+   
+   #BOXPLOT
+
+# descrive variabili quantitative attraverso una rappresentazione grafica dei loro quartili.
+
+# (box) i cui margini inferiore esuperiore corrispondono al primo e terzo quartile della variabile, 
+# mentre la riga più o meno al centro della ‘scatola’ rappresenta la mediana (cioè il secondo quartile).
+
+# Le linee a ‘T’ (whiskers) che si estendono verticalmente sotto e sopra la ‘scatola’ indicano 
+# rispettivamente il valore minimo ed il valore massimo della variabile
+
+# valori outlier (‘isolati’ rispetto al resto della distribuzione) 
+# vengono rappresentati al di fuori dello spazio occupato da box e whiskers con singoli punti. 
+
+boxplot(caleor,main="Boxplot")
+boxplot(caleor,col=grey(0.8),main="carapace lengths",las=1) 
+
+#‘las’ cambia l’orientamento delle etichette sulla scala del boxplot
+
+rug(caleor,side=2)
+
+#aggiunge una rappresentazione a ‘tappeto’ della distribuzione dei dati in corrispondenza della scala del 
+#boxplot. (I possibili valori dell’argomento ‘side’ sono 1, 2, 3 e 4, che stanno per ‘sotto’, ‘sinistra’,‘sopra’ e ‘destra’).
+
+#salvando il grafico
+dev.copy2pdf(file="boxplot1.pdf")
+
+
+#‘notch’,
+#settato nella posizione TRUE, inserisce una ‘tacca’ sulla ‘scatola’ in corrispondenza della mediana.
+#L’ampiezza della tacca è proporzionale alla varianza dei dati.
+#É particolarmente utile quando si confrontano due (o più) distribuzioni della stessa variabile: 
+#se le ‘tacche’ dei due boxplots non si sovrappongono, questa viene considerata ‘forte evidenza’ 
+#che le due mediane differiscano. 
+
+boxplot(caleor,notch=T,col=grey(0.8),main="carapace lengths",las = 1)
+dev.copy2pdf(file="boxplot2.pdf") 
+
+#Esercizio. 
+#(A)Selezionare una variabile a piacere del dataset ‘crabs’ e filtrarla per gli individui di colore blu
+#(B)Rappresentare la variabile con un istogramma ed aggiungere la curva di densità. 
+#(C)Rappresentare la stessa variabile con un boxplot. 
+
+crabs
+#FL = Frontal lobe size
+
+calblue = crabs$FL[crabs$sp=="B"]
+summary(calblue)
+
+hist(calblue, freq = F, main = "Frontal lobe size, Blue crabs")
+lines(density(calblue))
+
+boxplot(calblue,notch=T,col=grey(0.8),main="Frontal lobe size, Blue crabs",las = 1)
+
+
+   #DUE VARIABILI QUANTITATIVE: SCATTERPLOT E RAPPRESENTAZIONE MULTI-FRAME 
+
