@@ -227,3 +227,215 @@ boxplot(calblue,notch=T,col=grey(0.8),main="Frontal lobe size, Blue crabs",las =
 
    #DUE VARIABILI QUANTITATIVE: SCATTERPLOT E RAPPRESENTAZIONE MULTI-FRAME 
 
+#scatterplot o grafico a dispersione
+
+#entra in gioco quando si devono rappresentare due variabili quantitative allo stesso tempo.
+
+#Le due variabili sono semplicemente riportate sugli assi x e y di un piano cartesiano, e le
+#varie osservazioni saranno rappresentate da punti all’interno del piano definito dalle due variabili.
+
+#esempio pratico: recupero un altra variabile dal dataset
+
+cawior=crabs$CW[crabs$sp=="O"] 
+
+plot(caleor,cawior) #Il primo vettore (caleor) è associato all’asse x ed il secondo (cawior) è associato all’asse y.
+
+#Le impostazioni specifiche di ‘plot’ possono essere modificate introducendo altri
+#argomenti, ma è importante sapere che un buon numero di parametri grafici devono essere settati – se si
+#desiderano impostazioni diverse dal default – prima che il grafico sia effettivamente prodotto. 
+
+  #funzione par(mfrow()) per impostare graficamente gli spazi per i grafici
+
+par(mfrow=c(1,3))
+
+plot(caleor,cawior) 
+
+plot(cawior~caleor,main="Length and Width of carapaces") #simbolo tilde ~ tra due variabili ci permette di rappresentare y=f(x)
+
+plot(cawior~caleor,pch=20) #Il valore ‘pch=20’ corrisponde ad un puntino pieno #vedi tabella per le atre rappresentazioni dei punti
+
+#salviamo
+
+dev.copy2pdf(file="scatterplot_panel.pdf") 
+
+#altra versione dello stesso grafico (questa volta senza multiframe) con altre funzioni grafiche ‘secondarie’
+
+par(mfrow=c(1,1))
+
+plot(cawior~caleor,main="Length and Width of the 100 carapaces", pch=20,xlab="length (in
+mm)",ylab="width (in mm)") #‘xlab’ (inserisce un’etichetta o label sotto l’asse x) e 
+                           #‘ylab’ (inserisce un’etichetta o label a sinistra dell’asse y). 
+
+#e abline per aggiungere linee rette al plot: 
+
+abline(h=mean(cawior),lty=2,col=grey(0.6)) #aggiunge una linea orizzontale (h) che passa per la media dei valori della variabile CW (cioè la variabile sull’asse y)
+abline(v=mean(caleor),lty=2,col=grey(0.6)) #aggiunge una riga verticale (v) che passa per la media dei valori della variabile CL (cioè la variabile sull’asse x)
+#L’argomento ‘lty’ (line type) definisce l’aspetto della linea, che in questo caso sarà tratteggiata; 
+# l’argomento ‘col’ al solito ne specifica il colore (in questo caso una tonalità di grigio).
+
+#Il punto d’intersezione delle due rette indica il baricentro (o centroide) dei dati, cioè il punto determinato dalle medie delle due variabili considerate
+#Possiamo utilizzare la funzione ‘points’ per evidenziare questo punto: 
+
+points(mean(caleor),mean(cawior),col="red",pch=20,cex=2) 
+
+#esportiamo il plot: 
+dev.copy2pdf(file="scatterplot_lines_points.pdf") 
+
+#Esercizio. Scegliere due variabili numeriche a piacere (per i granchi blu) degli stessi dati e
+#rappresentarle con un pannello multiframe contenente tre grafici di cui: il primo con i punti
+#rappresentati da triangoli pieni di colore verde; il secondo con punti a piacere e rette (aspetto a piacere)
+#passanti per i valori medi; il terzo senza rette ma con il baricentro dei dati evidenziato (aspetto a piacere). 
+
+data(crabs)
+
+cawblue <- crabs$RW[crabs$sp=="B"]
+cawblue
+
+par(mfrow=c(1,3))
+
+plot(casblue,cawblue,pch=24,bg="green") 
+
+plot(cawblue~casblue,pch=24,bg="orange", main="Size and Width of carapaces") 
+abline(h=mean(cawblue),lty=2,col=grey(0.6))
+abline(v=mean(casblue),lty=2,col=grey(0.6))
+
+plot(cawblue~casblue,pch=18,col="purple")
+points(mean(casblue),mean(cawblue),col="red",pch=20,cex=2)
+
+dev.copy2pdf(file="Esercizio_scatterplot.pdf")
+
+
+
+   #UNA VARIABILE QUALITATIVA E UNA VARIABILE QUANTITATIVA
+
+#Il grafico boxplot può essere utilizzato per rappresentare dati quantitativi suddivisi in gruppi dai diversi
+#valori di una variabile qualitativa. In pratica, si tratta di realizzare nello stesso grafico tanti boxplots
+#quanti sono i raggruppamenti presenti nei dati. 
+
+# consideriamo la variabile qualitativa ‘sex’
+
+crabsex=crabs$sex[crabs$sp=="O"] 
+
+#la funzione ‘par’ al fine di ottenere un pannello multiframe: 
+
+par(mfrow=c(1,2)) 
+
+#Un altro argomento di ‘par’ consente di modificare i margini del plot, cioè le dimensioni degli spazi
+#vuoti (fatta eccezione per etichette e simili) che stanno intorno al plot: 
+
+par(mar=c(3,2,2,2)) # I valori default sono c(5,4,4,2), quindi stiamo riducendo le dimensioni di tutti i margini  (ad eccezione del destro, che resta uguale). 
+
+boxplot(caleor~crabsex) 
+
+#L’interfaccia ‘formula’ consente di realizzare i diversi boxplot all’interno dello stesso grafico
+#A sinistra della tilde si pone la variabile quantitativa, a destra quella qualitativa.
+#: ‘variabile quantitativa in funzione della variabile qualitativa’.
+
+#Il grafico risultante avrà i diversi valori della variabile qualitativa sull’asse x e quelli della variabile quantitativa sull’asse y. 
+
+#Produciamo quindi una seconda versione dello stesso grafico con argomenti aggiuntivi: 
+
+boxplot(caleor~crabsex,col=c("pink","lightblue"),notch = T)
+
+#Esercizio. Generare una coppia di boxplots per i granchi blu (B) utilizzando la variabile qualitativa
+#‘sex’ ed una variabile quantitativa a piacere. 
+
+crabsexb=crabs$sex[crabs$sp=="B"] 
+
+boxplot(casblue~crabsexb,col=c("pink","lightblue"),notch = T)
+
+#esercizio bonus
+
+
+boxplot(cawior~crabsex,main= "Orange Crabs",col=c("pink","lightblue"),notch = T)
+
+
+boxplot(cawblue~crabsexb,main ="Blue Crabs",col=c("pink","lightblue"),notch = T)
+
+dev.copy2pdf(file="Esercizio_orange_blue_boxplot.pdf")
+
+
+
+    #TRE VARIABILI QUANTITATIVE ED UNA VARIABILE QUALITATIVA, PLOT 3D
+
+#È possibile gestire situazioni relativamente complesse utilizzando varianti dello scatterplot con alcuni
+#accorgimenti. Utilizziamo come esempio il dataset ‘tortues’ contenuto nella library ‘ade4’ (trattandosi
+#di un pacchetto aggiuntivo, andrà eventualmente installato).
+
+library(ade4)
+data(tortues) 
+
+tortues
+
+#Per semplicità generiamo una copia della variabile qualitativa in un vettore: 
+
+sex=tortues$sexe 
+
+#Ora associamo ai due valori della variabile qualitativa diversi colori: 
+
+sexcol=ifelse(sex=="M","blue","red") 
+
+#Di nuovo per semplicità generiamo una copia delle variabili quantitative in un data frame: 
+
+measures=tortues[,1:3] 
+
+#A questo punto è possibile applicare la funzione ‘plot’: 
+
+plot(measures,col=sexcol,pch=19)
+
+#Se il primo argomento è un data frame contenente valori numerici, la funzione ‘plot’ risponderà
+#restituendo un pannello di scatterplots fra tutte le possibili coppie di variabili. La variabile qualitativa
+#‘sex’ viene introdotta tramite l’argomento ‘col’, per cui i punti nei diversi grafici saranno colorati in blu
+#se corrispondenti a maschi, in rosso se corrispondenti a femmine. 
+
+#Un’altra soluzione è offerta dalla library ‘rgl’ (3D Visualization Using OpenGL), che contiene diverse
+#funzioni per la realizzazione di vari tipi di plots a tre dimensioni. (Naturalmente, essendo un pacchetto
+#aggiuntivo va installato).
+
+install.packages("rgl")
+library(rgl)
+plot3d(measures,type ="s",col=sexcol)
+
+#La funzione ‘plot3d’ apre uno specifico strumento grafico (RGL device) e l’argomento ‘type ="s"’
+#attiva lo scatterplot (s). L’argomento ‘col’ è del tutto analogo a quello delle ‘normali’ funzioni grafiche.
+#Lo strumento grafico è interattivo e può essere orientato a piacere nella posizione desiderata. Per
+#esportare una ‘istantanea’ del grafico:
+  
+  rgl.postscript(fmt="pdf",file="scatter3d.pdf")
+
+#oppure
+
+rgl.snapshot(file="scatter3d.png") 
+
+
+#Esercizio. 
+#Il dataset ‘iris’ – uno dei più noti datasets di esempio in ambito statistico (si veda ?iris per)
+#– contiene quattro variabili numeriche relative alle dimensioni del fiore in 3 diverse specie di
+#iris (per un totale di 150 osservazioni). Generare un pannello di scatterplots bidimensionali per tutte le
+#possibili coppie di variabili numeriche con colori diversi per le diverse specie di iris. Generare uno
+#scatterplot 3d per tre delle quattro variabili numeriche (a piacere) con colori diversi per le diverse
+#specie di iris.
+
+data("iris")
+
+iriscol=iris[,5]
+
+iriscol
+
+
+ install.packages("plyr")
+ library(plyr)
+ 
+ revalue(iriscol, c("setosa" = "green")) -> iriscol
+ revalue(iriscol, c("virginica" = "red")) -> iriscol
+ revalue(iriscol, c("versicolor" = "blue")) -> iriscol
+ iriscol
+
+irsele = iris$Sepal.Length
+irsewi = iris$Sepal.Width
+irpele = iris$Petal.Length
+irpewi = iris$Petal.Width
+
+variabilinumeriche = c
+
+plot3d(irpele,irsele,irsewi,type ="s",col=iriscol)
