@@ -436,6 +436,4 @@ irsewi = iris$Sepal.Width
 irpele = iris$Petal.Length
 irpewi = iris$Petal.Width
 
-variabilinumeriche = c
-
 plot3d(irpele,irsele,irsewi,type ="s",col=iriscol)
