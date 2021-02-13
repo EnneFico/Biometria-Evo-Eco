@@ -1,0 +1,48 @@
+#DISTRIBUZIONI IN R 
+
+#In R ogni distribuzione statistica è rappresentata da quattro funzioni, ognuna delle quali effettua un
+#diverso tipo di calcolo. I nomi di queste funzioni sono dati da un prefisso che indica il particolare
+#‘binom’ per la binomiale). 
+
+
+#DISTRUBIZIONE BINOMIALE
+
+#Le funzioni che cominciano con ‘d’ restituiscono la probabilità che un certo evento si verifichi. 
+
+#esempio
+#Se lanciamo una moneta bilanciata (cioè p = 0.5) 10 volte, qual è la probabilità di ottenere testa 7
+#volte?
+
+dbinom(7,size=10,prob=0.5) # il risultato è circa 0.12, cioè il 12% 
+
+#Il primo argomento è il valore di x di cui vogliamo sapere la probabilità, i due argomenti successivi
+#sono i parametri della binomiale, cioè numero di repliche (size) e probabilità di successo (prob).
+
+#Più interessante dell’applicazione su singoli valori sono quelle volte alla ricostruzione dell’andamento
+#complessivo della distribuzione di probabilità.
+
+x=0:50 # vettore con tutti i valori possibili di x
+dbinom(x,size=50,prob=0.33) 
+
+#in forma grafica
+plot(x,dbinom(x,size=50,prob=0.33),type="h")
+
+
+   #DISTRUBUZIONE NORMALE
+
+#dnorm # calcolo della distribuzione di probabilità (densità di probabilità nel caso della normale)
+#pnorm # calcolo della probabilità cumulativa
+#qnorm # calcolo dei quantili teorici
+#rnorm # estrazione di numeri random
+
+#esempio
+#se misuro la statura in una popolazione dove la media è 175 cm con
+#una deviazione standard di 10 cm, qual è la (densità di) probabilità associata ad una statura di 165 cm? 
+
+dnorm(165,mean=175,sd=10) # il risultato è circa 0.0242, cioè 2.42%
+
+#Di nuovo, il primo argomento è il valore di x che ci interessa, mentre i due argomenti successivi sono i
+#parametri della distribuzione, cioè media (mean) e deviazione standard (sd). 
+
+
+
