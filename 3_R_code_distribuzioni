@@ -28,6 +28,8 @@ dbinom(x,size=50,prob=0.33)
 plot(x,dbinom(x,size=50,prob=0.33),type="h")
 
 
+
+
    #DISTRUBUZIONE NORMALE
 
 #dnorm # calcolo della distribuzione di probabilità (densità di probabilità nel caso della normale)
