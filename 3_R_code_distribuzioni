@@ -45,4 +45,258 @@ dnorm(165,mean=175,sd=10) # il risultato è circa 0.0242, cioè 2.42%
 #parametri della distribuzione, cioè media (mean) e deviazione standard (sd). 
 
 
+#Il caso della normale è più complicato per due ragioni:
+ #la variabile random x può, almeno in teoria, assumere tutti i valori reali (da -infinito a +infinito); 
+ #considerando un intervallo più ristretto, in ogni caso i valori di x in esso contenuti sono infiniti.
+
+#dovremo utilizzare qualche forma di approssimazione
+
+ #selezioniamo un intervallo di x di particolare interesse, cioè quello in cui si trova la ‘campana’: 
+ #nel nostro caso diciamo fra -4 e +4.
+
+ #All’interno di questo intervallo,che comunque contiene infiniti punti, ne selezioniamo un 
+ #sottoinsieme comunque abbastanza denso per approssimare ragionevolmente una distribuzione continua
+
+ #considerando intervalli di dimensione pari a 0.1.
+
+x=seq(-4,4,0.1) 
+
+#ed i corrispondenti valori di densità:
+
+dnorm(x) #la funzione dnorm assume, in assenza di diverse specificazioni, il caso della normale canonica.  
+
+#il grafico della distribuzione: 
+plot(x,dnorm(x),type="l") 
+#parametro ‘type="l"’, che al posto dei punti inserisce una linea continua che unisce gli stessi. 
+
+
+  #PROBABILITÀ CUMULATIVA
+
+#La probabilità cumulativa è la probabilità associata non ad un singolo valore di x 
+#ma ad un intervallo di valori di x
+
+#a probabilità associata ad un valore uguale o più piccolo del valore di x che ci interessa, 
+#che potremmo chiamare x0, cioè p (x ≤ x0).
+
+
+#Le probabilità cumulative (ed i quantili) sono di grande importanza nelle analisi statistiche perché
+#forniscono numeri utili per stabilire i valori ‘plausibili’ di una certa variabile (intervalli di
+#confidenza), per testare, accettare o escludere ipotesi (p-values).
+
+
+    #PROBABILITà COMULATIVA
+
+#Cominciamo con il calcolo della probabilità cumulativa in una distribuzione normale. 
+
+  #funzione pnorm
+
+#esempio
+#una certa misura biochimica in individui sani è descritta da una normale con media 132 e deviazione
+#standard 13. Se un paziente ha valore 160, qual'è la probabilità di trovare individui con valori più alti
+#nella popolazione generale? 
+
+#disegniamo il grafico della distribuzione di probabilità
+#corrispondente. 
+
+x=seq(80,184,0.5) # vettore di valori ‘selezionati’ di x come sopra
+
+#abbiamo scelto di partire da 80 ed arrivare fino a 184? Perché sono due numeri
+#‘ragionevoli’, che corrispondono alla media meno quattro deviazioni standard e alla media più quattro
+#deviazioni standard, rispettivamente.
+
+#All’interno di questo intervallo ‘ragionevolmente’ ricade la
+#stragrande maggioranza dei valori possibili della nostra variabile ed in questa regione risiede la
+#‘campana’ della curva
+
+
+plot(x,dnorm(x,mean=132,sd=13),type="l")
+
+#aggiungiamo un segmento orizzontale che rappresenti l’asse delle x: 
+
+segments(80,0,184,0) 
+
+#quindi un segmento verticale in corrispondenza del valore di x che ci interessa: 
+
+segments(160,0,160,dnorm(160,mean=132,sd=13),col="red")
+
+#salviamo il grafico:
+dev.copy2pdf(file="example_normal.pdf")
+
+# la probabilità cumulativa altro non potrà essere che l’area sotto la curva a sinistra del segmento per x = 160. 
+#calcoliamo
+
+pnorm(160,mean=132,sd=13) 
+
+#Ma la domanda posta nell’esempio si riferiva ad individui con valori più alti di 160, quindi non all’area
+#a sinistra del segmento, bensì all’area a destra dello stesso. Sapendo che l’area totale sotto la curva è
+#uguale a 1, il calcolo sarà: 
+
+1-pnorm(160,mean=132,sd=13)
+
+#he restituisce un valore intorno a 1.5%, cioè una probabilità molto bassa. In altri termini, dovrei
+#considerare inatteso e del tutto eccezionale il fatto di trovare un individuo con x >160.
+
+
+   #calcolo della probabilità cumulativa in una distribuzione binomiale. 
+
+#20 pazienti sono sottoposti a due diversi trattamenti (A, B) ognuno, quindi si chiede loro quale
+#trattamento hanno preferito. 16 rispondono A. Questo basta per dire che A è il trattamento migliore, o
+#dobbiamo ritenere che il risultato sia dovuto al caso? 
+
+
+                                             #ipotesi nulla 
+
+                                                #P-VALUES
+
+#la prima cosa che dobbiamo fare è costruireun’ipotesi ‘ragionevole’, che, come vedremo, nei test statistici 
+#prende il nome di ‘ipotesi nulla’.
+  
+#se i due trattamenti fossero identici, ci aspetteremmo che il numero di coloro che
+#favoriscono A segua una distribuzione binomiale con p = 0.5 e n = 20
+
+#Cominciamo con la rappresentazione grafica della distribuzione. 
+
+x=1:20 # vettore dei valori possibili della variabile random
+plot(x,dbinom(x,size=20,prob=0.5),type="h") # plot delle probabilità per punto 
+
+#Come nel caso precedente, aggiungiamo un segmento corrispondente al valore x = 16: 
+
+segments(16,0,16,dbinom(16,size=20,prob=0.5),col="red") 
+
+#Passiamo ora alla probabilità cumulativa. nel caso di una binomiale
+
+pbinom(16,size=20,prob=0.5) # p ~ 99.87% 
+
+#Quel che ci interessa, come nel caso precedente, è la probabilità di avere un valore uguale o più grande
+#di 16, quindi, dato che la somma di tutti i segmenti è uguale a 1, potremmo calcolare: 
+
+1-pbinom(16,size=20,prob=0.5) # p ~ 0.13% 
+
+#C’è però un problema: in questo modo otteniamo la probabilità di avere un valore più grande di 16, ma
+#non includiamo la probabilità per il punto x = 16, che invece deve essere compresa nel calcolo. La
+#questione ovviamente si pone per la natura discreta della nostra variabile (solo numeri interi!), a
+#differenza di quanto accadeva nel caso della normale, dove la variabile è continua. Risolviamo
+#facilmente il problema considerando la probabilità cumulativa per x ≤ 15: 
+
+1-pbinom(15,size=20,prob=0.5) # p ~ 0.59%
+
+#Il risultato ottenuto ci permette di affermare che la nostra ipotesi nulla – equiprobabilità dei due
+#trattamenti – è altamente improbabile (p~0.59%) quando il trattamento A è preferito da 16 soggetti su
+#20. Concludiamo quindi che l’ipotesi nulla deve essere rifiutata, accettando invece l’ipotesi alternativa,
+#cioè per l’appunto che il trattamento A è veramente preferito rispetto a B. 
+
+#Il test che abbiamo appena effettuato ha un nome specifico: si chiama test binomiale. In R esiste una
+#funzione (binom.test) che permette di effettuare il calcolo immediatamente, tenendo conto del fatto che
+#la probabilità cumulativa va calcolata rispetto ad x – 1.
+
+                                         #P-QUANTILE
+
+             #l’intervallo di confidenza in una distribuzione normale
+
+#l’esempio:
+#distribuzione con media 132 e deviazione standard 13. Innanzitutto, essendo la
+#normale una distribuzione simmetrica, l’intervallo di confidenza viene anch’esso abitualmente
+#calcolato in maniera simmetrica intorno alla media/mediana.
+
+#A meno che non ci siano buoni motivi per procedere in maniera diversa, naturalmente
+
+#l’intervallo avrà due limiti, uno inferiore ed uno superiore. 
+#I due limiti dell’intervallo di confidenza sono facilmente calcolabili
+#utilizzando i quantili, dato che corrisponderanno al 2.5%-quantile e al 97.5%-quantile
+
+#funzione qnorm
+
+inflim=qnorm(0.025,mean=132,sd=13) # x = 106.5205, limite inferiore
+suplim=qnorm(0.975,mean=132,sd=13) # x = 157.4795, limite superiore
+
+#dove il primo argomento rappresenta la probabilità cumulativa per cui si vuole calcolare il quantile,
+#mentre il secondo ed il terzo sono i soliti parametri della distribuzione. 
+
+#Esercizio. 
+#Disegnare la curva di distribuzione e rappresentare i limiti dell'intervallo 
+#di confidenza consegmenti verticali rossi. 
+
+plot(x,dnorm(x,mean=132,sd=13),type="l")
+
+
+#aggiungiamo un segmento orizzontale che rappresenti l’asse delle x: 
+
+segments(80,0,184,0) 
+
+segments(106.5205,0,106.5205,dnorm(106.5205,mean=132,sd=13),col="red")
+segments(157.4795,0,157.4795,dnorm(157.4795,mean=132,sd=13),col="red")
+
+#L’area che sta fra i due segmenti rossi è pari al 95% dell’area sotto la curva ed i corrispondenti valori
+#della variabile random costituiscono l’intervallo di confidenza.
+
+#salvo il grafico
+dev.copy2pdf(file="normal_d_p-quantili_intervallo_conf.pdf")
+
+#Le parti della curva di distribuzione
+#esterne all'intervallo di confidenza vengono chiamate “code” (tails) della distribuzione.
+
+
+#Sulla base di quanto visto, ci si può aspettare che
+#ad un valore al di fuori dell’intervallo di confidenza corrisponda un p-value significativo, cioè più
+#piccolo del 5%. --> rigetto l'ipotesi nulla H0
+#Questo è in generale vero, anche se in casi eccezionali può accadere il contrario
+
+#Esercizio. 
+#Dato il grafico di cui sopra, colorare interamente di rosso l’intervallo di confidenza. 
+install.packages("ggplot2")
+library(ggplot2)
+x=seq(80,184,0.5)
+y<-dnorm(x,mean=132,sd=13)
+xddf <- data.frame(x=x,y=y)
+qplot(x,y,data=xddf,geom="line")+
+  geom_ribbon(data=subset(xddf ,x>106.5205 & x<157.4795),aes(ymax=y),ymin=0,
+              fill="red",colour=NA,alpha=0.5)
+
+#salvo il grafico
+dev.copy2pdf(file="normal_d_p-quantili_intervallo_conf_red.pdf")
+
+
+
+                                #NUMERI RANDOM 
+
+#estrazione di numeri casuali.
+#le funzioni che si considerano qui estraggono da una distribuzione statistica. 
+#queste funzioni lavorano a livello ‘teorico’
+
+#Per estrarre numeri casuali da una distribuzione normale: 
+
+rnorm(10) # 10 numeri a caso da una normale canonica
+rnorm(10,mean=7,sd=5) # idem, ma da una normale coi parametri indicati
+
+
+#Del tutto analogo è il caso della binomiale:
+  
+  rbinom(10,size=20,prob=0.5) # 10 numeri a caso da una binomiale coi parametri indicati 
+
+  
+  #ESERCIZI 
+  
+#1. Data una variabile distribuita secondo una normale canonica, qual'è la probabilità che questa sia più
+#grande di 3?
+  
+1-pnorm(3) #circa il 0.13%
+
+#2. Qual è la probabilità di ottenere 10 successi su 10 in una distribuzione binomiale con probabilità di
+#successo = 0.8?
+
+dbinom(10,size = 10,prob=0.8) #circa il 10%
+
+#3. Qual è la probabilità che una variabile random sia maggiore di 6.5 quando questa segue una
+#distribuzione chi-quadro con due gradi di libertà?
+
+1-pchisq(6.5,df=2) #circa 0.38%
+
+
+#4. Disegnare la funzione di distribuzione di probabilità chi-square con 2, 3, 4 gradi di libertà
+#per 0 ≤ x ≤ 10
+
+q <- seq(0,10,0.001)
+plot(q,dchisq(q,df=2),type="l")
+plot(q,dchisq(q,df=3),type="l")
+plot(q,dchisq(q,df=4),type="l")
 
