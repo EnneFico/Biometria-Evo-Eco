@@ -1,1 +1,580 @@
 
+                                                     #TEST STATISTICI 
+
+      #un test statistico è uno strumento che utilizziamo per rispondere alla domanda: 
+      #la mia ipotesi è attendibile o no?
+      
+      #il tipico test statistico si basa su di una “ipotesi nulla” 
+      #(H0) e su di una “ipotesi alternativa” (H1)
+      
+      #L’ipotesi nulla è quella che viene valutata per mezzo del test statistico
+      #Se, alla luce dei risultati del test, l’ipotesi nulla appare altamente improbabile 
+      #questa viene rifiutata e di conseguenza viene accettata l’ipotesi alternativa.
+      
+      #più contenti se riusciamo a rifiutare l’ipotesi nulla. 
+      
+         #strumenti utilizzati
+      
+      #il p-value (o livello di significatività) e p-quantili (o intervallo di confidenza).
+      
+      #1)Per convenzione, accettiamo l’ipotesi nulla se il p-value è maggiore del 5% 
+      #e la statistica calcolata cade all’interno dell’intervallo di confidenza
+      
+      #2)Rifiutiamo l’ipotesi nulla (ed accettiamo l’ipotesi alternativa), quando il p-value è minore
+      #del 5% (si dice “significativo”) e la statistica calcolata cade al di fuori dell’intervallo di confidenza. 
+
+
+                                #TESTS PER IL CONFRONTO FRA VARIABILI QUANTITATIVE
+
+#t-test ad un campione (o test di Student) 
+        
+        #Questo test viene utilizzato per verificare l’ipotesi che la media di un certo campione (o meglio: la
+        #media della distribuzione ‘teorica’ da cui proviene il campione, che chiamiamo μ) è uguale ad un certo
+        #valore di riferimento (che chiamiamo μ0).
+        
+        #’ipotesi nulla che testiamo è:
+        
+        #H0: μ = μ0
+        
+        #mentre l’ipotesi alternativa è
+        
+        #H1: μ ≠ μ0
+        
+        #tutti i calcoli funzionano esattamente nel modo che
+        #conosciamo (intervallo di confidenza, p-value), fatto salvo che si applicano ad una distribuzione t
+        #invece che ad una normale.
+
+
+#prevede il calcolo di una statistica chiamata t, Quindi possiamo
+#riscrivere le ipotesi nulla e alternativa come segue: 
+
+#H0: t = 0; H1: t ≠ 0 
+
+    #La funzione di R che svolge il t-test si chiama – guarda caso – “t.test”. 
+    #Calcola automaticamente il pvalue e l’intervallo di confidenza – senza quindi che lo si debba fare “a mano” –
+    #e ne restituisce i limiti (quantili al 2.5% e 97.5%) già “tradotti” in termini della nostra variabile x.
+    
+    #Consideriamo il seguente esempio: 
+    #il nostro campione comprende dati sull'apporto calorico quotidiano di 11 donne in kJ; vogliamo sapere se 
+    #questi valori si discostano sistematicamente dal valore raccomandato di 7725 kJ. 
+
+#I nostri dati sono: 
+
+daily.intake=c(5260,5470,5640,6180,6390,6515,6805,7515,7515,8230,8770)
+
+#di cui possiamo valutare la media e la deviazione standard: 
+
+mean(daily.intake) # 6753.636
+sd(daily.intake) # 1142.123 
+
+#Sulla base di questi valori possiamo calcolare t: 
+
+t=(6753.636-7725)/(1142.123/sqrt(11)) # -2.820756
+
+#Il caso in questione si riduce quindi a testare l’ipotesi nulla t = 0, cioè se il valore -2.82 è abbastanza
+#lontano da 0 da uscire al di fuori dell’intervallo di confidenza (e produrre un p-value < 0.05). Ma, come
+#si diceva, non dobbiamo fare i conti a mano: 
+
+t.test(daily.intake,mu=7725) 
+
+#L’output brevemente ricorda il test effettuato (“One Sample t-test”) ed il dataset utilizzato (daily.intake).
+#Dopo di che elenca:
+#- il valore di t
+#- i gradi di libertà (degrees of freedom, df – ne parleremo in seguito)
+#- il p-value
+#- l’ipotesi alternativa (in termini di x)
+#- l’intervallo di confidenza
+#- la media di x
+
+#data:  daily.intake
+#t = -2.8208, df = 10, p-value = 0.01814
+#alternative hypothesis: true mean is not equal to 7725
+#95 percent confidence interval:
+#  5986.348 7520.925
+#sample estimates:
+#  mean of x 
+#6753.636 
+
+#sulla base di questi risultati rifiuto l'H0 e accetto H1
+
+
+
+#Test di Wilcoxon ad un campione
+
+        #e se i nostri dati non rispettano l’assunzione di normalità
+        #test definiti “liberi da distribuzioni”: test, cioè, che non
+        #assumono per i nostri dati alcuna particolare distribuzione.
+
+#Il test di Wilcoxon ad un campione è il corrispondente non-parametrico del t-test
+#ad un campione (che invece è un test parametrico). 
+
+#Il ragionamento
+#per prima cosa si sottrae ad ogni valore di x il valore μ0.
+
+D=daily.intake-7725
+
+        #Sotto l’ipotesi nulla, ci aspettiamo che i valori positivi e quelli negativi 
+        #siano più o meno nello stesso numero, quindi la
+        #probabilità di selezionare un valore positivo dovrebbe essere uguale ad ½. 
+
+#Per testare questa possibilità si calcola una statistica chiamata V procedendo in questo modo:
+ # 1) si prende nota del segno di ogni valore di D: 
+
+signs=ifelse(D>0,1,-1)
+
+#2) si assegna il rango (rank) ad ogni valore di D:
+#Il rango corrisponde alla posizione di ogni valore di D in una scala dal più piccolo al più grande. Non
+#si considera il segno
+
+ranks=rank(abs(D))
+
+#3) si calcola il prodotto fra segno e rango (sr):
+
+rs=ranks*signs
+
+#4) si calcola infine la somma dei valori di rs con segno positivo
+
+V=sum(rs[rs>0]) # 8 
+V2=sum(rs[rs<0]) # -58
+
+#La statistica V (che per definizione è un numero positivo) non ha un’interpretazione “chiara” come quella di t.
+#Ci limitiamo a dire che anch’essa in qualche modo rispecchia la deviazione dall’ipotesi
+#nulla, e valori “molto” grandi o “molto” piccoli di V implicano una maggiore probabilità di rifiutare
+#l’ipotesi nulla.
+
+#Facciamo grazia del calcolo del p-value “a mano” e procediamo con la funzione di R,
+#chiamata “wilcox.test”. L’utilizzo è del tutto analogo al t-test: 
+
+wilcox.test(daily.intake,mu=7725)
+
+#Wilcoxon signed rank test with continuity correction
+
+#data:  daily.intake
+#V = 8, p-value = 0.0293
+#alternative hypothesis: true location is not equal to 7725
+
+#p-value piccolo, rifiuto H0
+
+
+#t-test a due campioni
+    
+    #Questa variante del t-test si applica al confronto fra due campioni, verificando l’ipotesi nulla che la
+    #media del (della distribuzione associata al) primo campione (μ0) sia uguale alla media del (della
+    #distribuzione associata al) secondo campione (μ2), cioè: 
+
+#H0: μ1 = μ2 , il che vale a dire: μ1 - μ2 = 0 
+#H1: μ1 ≠ μ2 , il che vale a dire: μ1 - μ2 ≠ 0 
+
+#il test si basa sul calcolo della statistica t
+    
+    # l’intervallo di confidenza ed il p-value #vengono calcolati sulla base della distribuzione di t, 
+    # ma i risultati vengono presentati nei termini della differenza fra le due medie.
+
+#esempio
+
+#Disponiamo di dati sulla spesa di energia (in mega-J) quotidiana di donne magre
+#e obese (file “energy.txt”). Vogliamo sapere se le due corrispondenti distribuzioni hanno uguale media
+#o meno. 
+
+energy=read.table("energy.txt",header=T) 
+
+#quindi informiamo R che la seconda colonna (stature) è una variabile fattoriale: 
+
+energy$stature=as.factor(energy$stature)
+
+#ed esploriamo il dataset:
+
+  str(energy)
+summary(energy) 
+
+#Svolgiamo il test come segue:
+  
+  t.test(energy$expend~energy$stature) 
+  
+  #Welch Two Sample t-test
+  
+  #data:  energy$expend by energy$stature
+  #t = -3.8555, df = 15.919, p-value = 0.001411
+  #alternative hypothesis: true difference in means is not equal to 0
+  #95 percent confidence interval:
+  #  -3.459167 -1.004081
+  #sample estimates:
+  #  mean in group lean mean in group obese 
+  #8.066154           10.297778 
+  
+#Anche questa versione del t-test assume la normalità delle due distribuzioni.
+  
+    #La versione del test implementata in R prevede una procedura, detta di Welch, 
+    #che ci permette di omettere un’altra assunzione,quella di uguaglianza delle varianze, 
+    #altrimenti prevista nella versione ‘base’ del test). 
+  
+#l'intervallo di confidenza non comprende lo 0 (H0 da rifiutare?)
+#t non ricade nell'intervallo di confidenza
+#p-value minore del 5%
+  
+  #rifiuto l'ipotesi nulla
+  
+  
+  
+#Test di Wilcoxon a due campioni
+  
+  #È la variante non-parametrica del t-test a due campioni.
+  
+  #si basa cioè sul rango
+  #la statistica si chiama W
+  
+  wilcox.test(energy$expend~energy$stature) 
+  
+#Wilcoxon rank sum test with continuity correction
+  
+  #data:  energy$expend by energy$stature
+  #W = 12, p-value = 0.002122
+  #alternative hypothesis: true location shift is not equal to 0
+  
+#p-value piccolo, rifiuto H0
+#qui dovremo calcolare le medie per capire chi consuma di più o di meno
+  
+  
+  
+#Esercizio. Il caso di Darwin: il naturalista ha 15 piantine di mais ottenute per eterofecondazione e 15
+  #per autofecondazione (darwin.txt). Nota che le prime sono mediamente più alte delle seconde. La
+  #differenza è significativa?  
+  
+darwin=read.table("darwin.txt",header=T)  
+darwin$Group=as.factor(darwin$Group)
+t.test(darwin$Height~darwin$Group)
+
+
+#Welch Two Sample t-test
+
+#data:  darwin$Height by darwin$Group
+#t = 2.4371, df = 22.164, p-value = 0.02328
+#alternative hypothesis: true difference in means is not equal to 0
+#95 percent confidence interval:
+#  3.127653 38.739014
+#sample estimates:
+#  mean in group Crossed mean in group Self-Fertilized 
+#161.5333                      140.6000 
+
+
+wilcox.test(darwin$Height~darwin$Group)
+
+#Wilcoxon rank sum test with continuity correction
+
+#data:  darwin$Height by darwin$Group
+#W = 185.5, p-value = 0.002608
+#alternative hypothesis: true location shift is not equal to 0
+
+
+
+  
+#t-test a coppie
+  
+  #I test a coppie si usano quando si hanno due misure per ogni unità sperimentale. 
+  # i due campioni sono stati ottenuti a partire dagli stessi soggetti.
+  
+  #  Esempi tipici di dataset a coppie sono quelli che prevedono misurazioni in due diversi intervalli
+  #  temporali, come il seguente caso:
+  #  abbiamo misure sull'apporto energetico giornaliero di un gruppo di donne in fase pre- e post-mestruale
+  #  (file intake.txt). Ci chiediamo se il parametro misurato rimanga invariato o meno nelle due fasi. 
+  
+#In un caso del genere l’ipotesi nulla è un’ipotesi di invarianza fra il “pre” ed il “post”, il che significa
+#che la differenza fra le rispettive medie è uguale a zero: 
+  
+
+  #H0: μpre – μpost = 0
+  #H1: μpre – μpost ≠ 0
+  
+  #Importiamo i dati:
+    
+    intake=read.table("intake.txt",header=T)
+  
+    #e, data la loro natura “appaiata”, rappresentiamoli con uno scatterplot:
+    
+    plot(intake$pre,intake$post) 
+
+
+#Il grafico mostra chiaramente che i due campioni (pre e post) non sono indipendenti: le osservazioni
+    #tendono ad allinearsi su di una retta positivamente inclinata. Si noti che se i due campioni non fossero
+    #appaiati (cioè fossero due campioni indipendenti), ci aspetteremmo una distribuzione casuale dei punti.
+    #Passiamo al test: 
+    
+
+    t.test(intake$pre,intake$post,paired=T) #si aggiunge l’argomento ‘paired = T’, che per l’appunto specifica la natura appaiata dei dati. 
+
+    #Paired t-test
+    
+    #data:  intake$pre and intake$post
+    #t = 11.941, df = 10, p-value = 3.059e-07
+    #alternative hypothesis: true difference in means is not equal to 0
+    #95 percent confidence interval:
+    #  1074.072 1566.838
+    #sample estimates:
+    #  mean of the differences 
+    #1320.455 
+    
+#Esercizio 1. Si commentino i risultati, dopodiché si ripeta il test omettendo l’opzione ‘paired = T’.
+#Quali differenze si osservano? Per quali motivi? 
+    
+#Esercizio 2. Si effettui il test in versione non-parametrica e si commentino i risultati
+    wilcox.test(intake$pre,intake$post,paired = T)
+    
+    #Wilcoxon signed rank test with continuity correction
+    
+    #data:  intake$pre and intake$post
+    #V = 66, p-value = 0.00384
+    #alternative hypothesis: true location shift is not equal to 0
+    
+
+    
+    
+    
+           #TESTS PER VARIABILI QUALITATIVE (FATTORIALI) 
+    
+    
+#Test binomiale 
+    
+    #H0: p = p0
+    #H1: p ≠ p0
+    
+   # Consideriamo ora il seguente esempio: 39 pazienti su 215 scelti a caso hanno l'asma. Vogliamo sapere
+   #se la probabilità per un paziente 'random' di avere l'asma può considerarsi di 0.15.
+   #Come avevamo già accennato, esiste una funzione di R che effettua automaticamente tutti i calcoli,
+    #binom.test, per cui il risultato può ottenersi scrivendo:
+      binom.test(39,215,0.15)
+      
+      
+      #Exact binomial test
+      
+      #data:  39 and 215
+      #number of successes = 39, number of trials = 215, p-value = 0.2135
+      #alternative hypothesis: true probability of success is not equal to 0.15
+      #95 percent confidence interval:
+      #  0.1322842 0.2395223
+      #sample estimates:
+      #  probability of success 
+      #0.1813953
+      
+  #in base ai risultati accetto l'ipotesi nulla H0
+      
+      #Esercizio. Riprendiamo l’esempio utilizzato per la spiegazione della probabilità cumulativa: 20 pazienti
+      #sono sottoposti a due diversi trattamenti (A, B) ognuno, quindi si chiede loro quale trattamento hanno
+      #preferito. 16 rispondono A. Questo basta per dire che A è il trattamento migliore, o dobbiamo ritenere
+      #che il risultato sia dovuto al caso?
+      #  Avevamo allora concluso che la probabilità di uguale successo dei due trattamenti è all’incirca uguale
+      #al 0.59%.
+      #Si risolva lo stesso problema utilizzando la funzione binom.test. Quali differenze si osservano rispetto
+      #al calcolo precedente? Quali sono le possibili spiegazioni? 
+      
+      
+      binom.test(16,20,0.5)
+      
+      #Exact binomial test
+      
+      #data:  16 and 20
+      #number of successes = 16, number of trials = 20, p-value = 0.01182
+      #alternative hypothesis: true probability of success is not equal to 0.5
+      #95 percent confidence interval:
+      #  0.563386 0.942666
+      #sample estimates:
+      #  probability of success 
+      #0.8 
+      
+      
+      
+  #Test delle proporzioni
+      
+     #Il test delle proporzioni è un test ‘approssimato’ 
+      #– quindi l’intervallo di confidenza ed il p-value non sono esatti – che ha
+      #però il vantaggio di una maggiore plasticità.
+      
+      #La funzione per il calcolo di questo
+      #test è prop.test. Applicata all’esempio precedente, sarebbe: 
+      
+      prop.test(39,215,0.15)
+      
+      #1-sample proportions test with continuity correction
+      
+      #data:  39 out of 215, null probability 0.15
+      #X-squared = 1.425, df = 1, p-value = 0.2326
+      #alternative hypothesis: true p is not equal to 0.15
+      #95 percent confidence interval:
+      #  0.1335937 0.2408799
+      #sample estimates:
+      #  p 
+      #0.1813953 
+      
+      #il p-value e l’intevallo di confidenza vengono calcolati su di
+      #una distribuzione chi-quadro con un grado di libertà. L’output del test li presenta comunque ‘tradotti’
+      #nei termini della probabilità di successo
+      
+      #Il vantaggio del test delle proporzioni (rispetto al test binomiale) è quello di poter confrontare due o più
+      #serie di esperimenti (o meglio: le rispettive distribuzioni) fra di loro.
+      
+  #Nel caso che le distribuzioni siano
+  #due, l’ipotesi nulla è di uguale probabilità di successo, cioè:
+      
+     # H0: p1 = p2
+      
+      #e di conseguenza
+      
+     # H1: p1 ≠ p2
+      
+      
+    #esempio, abbiamo due serie di esperimenti composte da 12 repliche e 13 repliche. I risultati sono 9
+      #successi e 4 successi, rispettivamente. Vogliamo sapere se la probabilità di successo nelle due serie è
+      #uguale o meno. Cercheremo di ottenere una risposta col test delle proporzioni, anche se il caso si
+      #presenta chiaramente problematico, visto che il numero di successi nel secondo esperimento è
+      #addirittura minore di 5.
+      
+      #Creiamo due vettori contenti i dati:
+      successi=c(9,4)
+      totali=c(12,13) 
+
+      #e svolgiamo il test:
+      
+        prop.test(successi,totali)       
+
+                #2-sample test for equality of proportions with continuity correction
+        
+        #data:  successi out of totali
+        #X-squared = 3.2793, df = 1, p-value = 0.07016
+        #alternative hypothesis: two.sided
+        #95 percent confidence interval:
+        #  0.01151032 0.87310506
+        #sample estimates:
+        #  prop 1    prop 2 
+        #0.7500000 0.3076923 
+        
+        #Oltre alle solite informazioni, osserviamo che 
+        #1) l’intervallo di confidenza è dato in termini di differenza fra le due probabilità di successo messe a confronto; ricordiamo che secondo l’ipotesi nulla
+        #tale differenza deve essere uguale a zero; 
+        #2) le ‘sample estimates’ corrispondono alle probabilità di successo nei due campioni.
+
+#Ora, c’è qualcosa di strano in questo risultato. Il p-value è maggiore del 5%, quindi indicherebbe una
+#non-significatività del test (accettiamo l’ipotesi nulla). L’intervallo di confidenza non comprende zero, 
+#quindi dovremmo rifiutare l’ipotesi nulla. Insomma, p-value e intervallo di confidenza sono in
+#contraddizione. Perché?
+        
+        #perché l’approssimazione di normalità su cui si basa il test delle proporzioni non regge con
+        #dati di così piccole dimensioni ed il test va in ‘crisi’
+        
+    #in questo caso esisterebbe comunque una soluzione: il test di Fisher
+        
+      
+        
+       # Esercizio. 
+        #In un epidemia di febbre esantematica delle Montagne Rocciose, negli Stati Uniti occidentali
+        #morirono 210 pazienti su 747 casi; negli Stati Uniti orientali morirono 122 pazienti su 661 casi. La
+        #differenza è significativa? 
+        
+        
+        morti <- c(210,122)
+        casi <- c(747,661)
+        
+        prop.test(morti,casi)
+        
+        
+        #2-sample test for equality of proportions with continuity correction
+        
+        #data:  morti out of casi
+        #X-squared = 17.612, df = 1, p-value = 2.709e-05
+        #alternative hypothesis: two.sided
+        #95 percent confidence interval:
+        #  0.05138139 0.14172994
+        #sample estimates:
+        #  prop 1    prop 2 
+        #0.2811245 0.1845688 
+        
+        #rifiutiamo l'ipotesi nulla e accettiamo H1, c'è una differenza statisticamente evidente
+        
+  
+#Test del chi-quadro
+        
+        #consente di analizzare variabili che presentano anche più di due livelli 
+        #La statistica chi-quadro segue una particolare distribuzione, ovviamente chiamata anch’essa chi quadro,
+        #che ha la caratteristica di esistere soltanto per valori > 0 (è una somma di quadrati) ed è asimmetrica
+        
+        #il p-value è calcolato nel solito modo. 
+        #Sotto l’ipotesi di indipendenza ci aspettiamo che le
+        #frequenze osservate coincidano con quelle attese, quindi l’ipotesi nulla è: 
+        
+        #H0 : X^2 = 0
+        
+        #e l’ipotesi alternativa è
+        
+        #H1 : X^2 > 0 
+        
+        
+        #esempio visto sopra: due serie di esperimenti composte da 12 repliche e 13 repliche con
+        #9 successi e 4 successi, rispettivamente. Dal punto di vista del chi-quadro, le due variabili qualitative 
+        #che confrontiamo sono: “successo/fallimento” e “prima serie/seconda serie”. I dati vanno organizzati in
+        #una matrice 2 x 2, ad esempio ponendo le righe come “prima serie/seconda serie” e le colonne come
+        #“successo/fallimento”: 
+        
+        data=matrix(c(9,4,3,9),nrow=2)
+
+        #e svolgiamo il test con la funzione chisq.test:
+        chisq.test(data)
+        
+        #Pearson's Chi-squared test with Yates' continuity correction
+        
+        #data:  data
+        #X-squared = 3.2793, df = 1, p-value = 0.07016
+        
+        
+        #L’output contiene il valore di chi-quadro, i gradi di libertà ed il p-value (niente intervallo di
+       # confidenza). È possibile estrarre anche le frequenze attese scrivendo: 
+        
+        chisq.test(data)$exp
+        
+        #     [,1] [,2]
+        #[1,] 6.24 5.76
+        #[2,] 6.76 6.24
+        
+        
+        
+        
+        
+  #test di Fisher
+        
+        #restituisce un p-value esatto (mentre l’intervallo di confidenza è frutto di una
+        #approssimazione, quindi in caso di risultati contrastanti, “vince” il p-value).
+        
+      #Fisher esprime l’ipotesi nulla e l’intervallo di confidenza tramite
+        #una statistica chiamata “odds ratio”, corrispondente al rapporto fra le quantità di successi e fallimenti
+        #nei due esperimenti
+        
+        #Sotto l’ipotesi nulla, successi e fallimenti devono essere equiprobabili, quindi:
+       # H0: OR = 1
+      #  e
+       #H1: OR ≠ 1
+        
+        #Riprendendo i soliti dati “problematici”, applichiamo la funzione fisher.test:
+          fisher.test(data)
+          
+          
+          
+          #Fisher's Exact Test for Count Data
+
+#data:  data
+#p-value = 0.04718
+#alternative hypothesis: true odds ratio is not equal to 1
+#95 percent confidence interval:
+#  0.9006803 57.2549701
+#sample estimates:
+#odds ratio 
+#  6.180528
+          
+          #L’output, oltre alla dichiarazione del test effettuato e dei dati utilizzati, contiene:
+          #  - il p-value esatto;
+          #- l’ipotesi alternativa (in termini di OR);
+          #- l’intervallo di confidenza al 95% (approssimato ed in termini di OR);
+          #- il valore di OR calcolata nel campione
+          
+          
+          
+          #I risultati ottenuti mostrano un p-value significativo (anche se a malapena!), quindi possiamo
+          #considerare questa la risposta ‘esatta’ al nostro problema. L’intervallo di confidenza, invece, include il
+          #valore OR = 1, di nuovo entrando in conflitto col p-value. Ma sappiamo che l’intervallo di confidenza è
+          #di nuovo frutto di un’approssimazione, mentre il p-value è esatto. 
