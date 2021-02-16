@@ -1,1 +1,544 @@
 
+
+                                       # Regressione lineare
+
+              #La regressione lineare è il modo più semplice (ed uno dei più usati) per
+              #descrivere la relazione fra due variabili quantitative (x, y). 
+              
+              #Il modello corrispondente (→ equazione di una retta) 
+              
+              #Il valore dei parametri del modello viene stimato col metodo dei minimi
+              #quadrati → scegliere la retta in modo tale che la somma dei quadrati dei
+              #residui (→ scarti fra le osservazioni ed il dato atteso) sia minima. 
+
+#Se le due variabili (x, y) sono indipendenti, mi aspetto che la retta sia
+#orizzontale, quindi β = 0. 
+#In una regressione lineare, questa ipotesi nulla
+#viene testata con un t-test.
+
+#H0 la retta è orizzontale
+
+#trovare la retta
+
+#Es. Abbiamo dati relativi a velocità di contrazione ventricolare e quantità di
+#glucosio nel sangue in 24 pazienti con diabete di tipo 1. Intendiamo
+#descrivere la relazione fra le due variabili. 
+
+thuesen=read.table("thuesen.txt",header=T) # importa i dati
+dim(thuesen)
+summary(thuesen)
+
+
+mod=lm(short.velocity~blood.glucose,data=thuesen) # calcola il modello --> lm=linear model
+# notare che 'salvo' il modello in un oggetto!
+mod # mostra l'intercetta e il coefficiente di regressione (niente tests)
+
+#Coefficients:
+#(Intercept)#alfa  blood.glucos#beta
+#1.09781                0.02196  
+
+
+
+           #Estrattori in R
+
+#I risultati di un modello (non solo lineare e non solo regressione) sono 'incapsulati'
+#in un oggetto (oggetto modello) dal quale è possibile estrarre le quantità desiderate
+#mediante funzioni dette 'estrattori'.
+
+summary(mod) # estrae il sommario degli effetti. Contiene:
+
+
+#Call:
+#  lm(formula = short.velocity ~ blood.glucose, data = thuesen) #- call ('chiamata'): comando utilizzato
+
+#Residuals:
+#  Min       1Q   Median       3Q      Max 
+#-0.40141 -0.14760 -0.02202  0.03001  0.43490   #- statistiche di base sui residui
+
+
+#
+#Coefficients:                                          - stime dei coefficienti (α: Intercept; β: coefficiente di regressione) coi rispettivi
+#  Estimate Std. Error t value Pr(>|t|)                   tandard errors e t-tests (H0: α = 0, β = 0). Si noti che, in questo caso, il t-test   
+#(Intercept)    1.09781    0.11748   9.345 6.26e-09 ***   sull'intercetta non ha nessun significato.
+#  blood.glucose  0.02196    0.01045   2.101   0.0479 *  
+#  ---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+#Residual standard error: 0.2167 on 21 degrees of freedom - standard error dei residui e gradi di libertà (dei residui)
+#(1 observation deleted due to missingness)
+
+
+#Multiple R-squared:  0.1737,	Adjusted R-squared:  0.1343 - R-squared / adjusted-R-squared (cambiamento nella somma dei residui al
+#                                                         quadrato / varianza rispetto ad un modello 'vuoto')
+                                                          #da 0 a 1, 1 buono, 0 schifo
+
+
+#F-statistic: 4.414 on 1 and 21 DF,  p-value: 0.0479    - F-test ('test delle varianze') che in una regressione lineare semplice replica il t-test
+#                                                         associato al coefficiente di regressione. 
+
+
+
+fitted(mod) # restituisce i valori attesi (della variabile y)
+resid(mod) # restituisce i residui (differenze fra valori attesi e valori osservati) 
+
+#Disegnare il modello
+
+plot(thuesen) # scatterplot dei punti (x, y)
+abline(mod) # disegna la retta di regressione (y = α + βx) 
+
+#Per rappresentare i residui utilizziamo la funzione segments, i cui argomenti sono
+#le coordinate di inizio e di fine dei segmenti che si vogliono disegnare:
+  
+  segments(thuesen$blood.glucose,fitted(mod),thuesen$blood.glucose,thuesen$short.velocity)
+# c'è qualche problema??
+
+  options(na.action=na.exclude) # esclude i dati mancanti 
+  mod=lm(short.velocity~blood.glucose,data=thuesen) # ricalcoliamo il modello
+  plot(thuesen) # nuovo disegno
+  abline(mod) # idem
+  segments(thuesen$blood.glucose,fitted(mod),thuesen$blood.glucose,
+           thuesen$short.velocity) # ok  
+
+  plot(mod)
+
+     
+                     #  Test di normalità
+  
+  #Vogliamo sapere se la distribuzione dei residui può essere assimilabile ad una
+  #normale o meno. 
+  
+  #Come primo approccio, possiamo disegnare i quantili 'empirici' del nostro campione
+  #e confrontarli con quelli 'teorici' attesi in una distribuzione normale (Q-Q plot):
+   
+  qqnorm(resid(mod))  
+
+  #Se l'ipotesi nulla è rispettata, ci aspettiamo che i valori si allineino lungo la prima
+  #bisettrice degli assi.
+  
+  
+  #Se desideriamo un p-value applichiamo il test di Shapiro, basato proprio sul grado
+  #di linearità del Q-Q plot:
+  
+  shapiro.test(resid(mod))
+                               #ATTENZIONE VOGLIAMO UN P-VALUE ALTO, H0 CI PIACE
+  #Ricordare che l'ipotesi nulla del test prevede la normalità dei residui, quindi se p >
+  #0.05 siamo contenti!    
+  
+  #Shapiro-Wilk normality test
+  
+  #data:  resid(mod)
+  #W = 0.92413, p-value = 0.08173
+  
+  
+  
+  
+                              #Regressione lineare multipla
+  
+   #Si parla di regressione multipla quando abbiamo più di una variabile esplicativa.
+  #E' possibile calcolare una regressione lineare utilizzando la funzione lm inserendo
+  #un '+' nella formula fra le due variabili esplicative. 
+  
+  #Esempio col data-set trees:
+  #contiene misure del diametro (Girth), altezza (Height)
+  #e volume (Volume) di 31 piante di amarena. Vogliamo descrivere la relazione fra
+  #la variabile volume (variabile risposta) e le variabili esplicative diametro e altezza.
+  
+  data(trees) # chiama dati
+  str(trees) # struttura dei dati
+  summary(trees) # statistiche di base
+  plot(trees) # scatterplot a coppie
+
+  mod=lm(Volume~Girth+Height,data=trees) # calcola modello
+ 
+  mod
+  #Call:
+  #  lm(formula = Volume ~ Girth + Height, data = trees)
+  
+  #Coefficients:
+   # (Intercept)        Girth       Height  
+  #-57.9877       4.7082       0.3393
+  
+  
+   summary(mod) # estrae il sommario degli effetti.   
+ 
+  #Call:
+  #  lm(formula = Volume ~ Girth + Height, data = trees)
+  
+  #Residuals:
+  #  Min      1Q  Median      3Q     Max 
+  #-6.4065 -2.6493 -0.2876  2.2003  8.4847 
+  
+  #Coefficients:
+  #  Estimate Std. Error t value Pr(>|t|)    
+  #(Intercept) -57.9877     8.6382  -6.713 2.75e-07 ***
+  #  Girth         4.7082     0.2643  17.816  < 2e-16 ***
+  #  Height        0.3393     0.1302   2.607   0.0145 *  
+  #  ---
+  #  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+  
+  #Residual standard error: 3.882 on 28 degrees of freedom
+  #Multiple R-squared:  0.948,	Adjusted R-squared:  0.9442 
+  #F-statistic:   255 on 2 and 28 DF,  p-value: < 2.2e-16  #media tra i p-value dei due coefficenti (in questo caso)
+                                                                                                    
+  
+
+  #In questo caso, il F-test offre una valutazione cumulativa degli effetti del modello e
+  #non è una semplice replica dei t-test (che invece sono divisi per singolo
+                                         #coefficiente di regressione). 
+   
+
+   qqnorm(resid(mod)) #ci piace, sembra una retta
+   shapiro.test(resid(mod)) #p-value 65% molto alto -> assunzione di normalità confermata
+   
+   
+   mod=lm(Volume~Girth*Height,data=trees)
+   summary(mod)
+   
+   
+   #Call:
+  #   lm(formula = Volume ~ Girth * Height, data = trees)
+   
+   #Residuals:
+  #   Min      1Q  Median      3Q     Max 
+   #-6.5821 -1.0673  0.3026  1.5641  4.6649 
+   
+   #Coefficients:
+  #   Estimate Std. Error t value Pr(>|t|)    
+   #(Intercept)  69.39632   23.83575   2.911  0.00713 ** 
+    # Girth        -5.85585    1.92134  -3.048  0.00511 ** 
+    # Height       -1.29708    0.30984  -4.186  0.00027 ***
+    # Girth:Height  0.13465    0.02438   5.524 7.48e-06 ***  #la riga in più rappresenta la relazione tra le due variabili x
+    # ---
+    # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+   
+   #Residual standard error: 2.709 on 27 degrees of freedom
+   #Multiple R-squared:  0.9756,	Adjusted R-squared:  0.9728 
+   #F-statistic: 359.3 on 3 and 27 DF,  p-value: < 2.2e-16
+   
+   shapiro.test(resid(mod))
+   
+   #Shapiro-Wilk normality test
+   
+   #data:  resid(mod)
+   #W = 0.97431, p-value = 0.644
+   
+   
+   #Esercizio
+   #Abbiamo dati sul tasso metabolico e sul peso corporeo di 44 individui (file rmr.txt).
+   #Fare uno scatterplot del tasso metabolico (y) in funzione del peso corporeo (x).
+   #Calcolare il corrispondente modello di regressione lineare e disegnare la retta di
+   #regressione sul grafico.
+   #Qual'è il valore previsto di y per x = 70 kg sulla base del modello calcolato?
+   #Dare un intervallo di confidenza al 95% per il coefficiente di regressione. 
+   
+   rmr=read.table("rmr.txt",header=T)
+   rmr
+   plot(rmr$body.weight,rmr$metabolic.rate)
+   lin_reg=lm(rmr$metabolic.rate~rmr$body.weight)
+   lin_reg
+   summary(lin_reg)
+   
+  # Call:
+   #  lm(formula = rmr$metabolic.rate ~ rmr$body.weight)
+   
+   #Coefficients:
+  #   (Intercept)  rmr$body.weight  
+  # 811.23             7.06  
+   
+  # >    summary(lin_reg)
+   
+  # Call:
+  #   lm(formula = rmr$metabolic.rate ~ rmr$body.weight)
+   
+   #Residuals:
+  #   Min      1Q  Median      3Q     Max 
+   #-245.74 -113.99  -32.05  104.96  484.81 
+   
+   #Coefficients:
+  #   Estimate Std. Error t value Pr(>|t|)    
+   #(Intercept)     811.2267    76.9755  10.539 2.29e-13 ***
+  #   rmr$body.weight   7.0595     0.9776   7.221 7.03e-09 ***
+   #  ---
+  #   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+   
+   #Residual standard error: 157.9 on 42 degrees of freedom
+   #Multiple R-squared:  0.5539,	Adjusted R-squared:  0.5433 
+   #F-statistic: 52.15 on 1 and 42 DF,  p-value: 7.025e-09
+   
+   plot(rmr)
+   abline(lin_reg) # idem
+   segments(rmr$body.weight,fitted(lin_reg),rmr$body.weight,
+          rmr$metabolic.rate, col= "red")
+   
+   qqnorm(resid(lin_reg))  
+   
+   #trovo y per x=70 kg
+   y=811.2267+7.0595*70
+   y
+   
+   shapiro.test(resid(lin_reg))
+   #Shapiro-Wilk normality test
+   
+   #data:  resid(lin_reg)
+   #W = 0.95657, p-value = 0.09681
+                  
+   confint(lin_reg)
+   
+   #2.5 %   97.5 %
+  #   (Intercept)     655.883819 966.5695
+   #rmr$body.weight   5.086656   9.0324       #intervallo di confidenza del coefficente della retta
+   
+   
+   
+   
+                      
+                                          #CORRELAZIONE (variabili quantitative)
+   
+   #Un coefficiente di correlazione è una misura del grado di associazione fra due
+   #variabili random quantitative.
+   #Varia fra -1 e +1, dove gli estremi indicano perfetta correlazione 
+   #(-1 se i valori più grandi di una variabile sono associati con quelli
+   #più piccoli dell'altra; +1 se entrambe le variabili presentano valori grandi o piccoli simultanea) 
+   #ed il valore 0 indica assenza di correlazione. 
+   
+             #Correlazione di Pearson
+   
+   #Il coefficiente di Pearson (r) assume la normalità delle due variabili di cui si vuole
+   #misurare la correlazione. 
+   
+   
+   cor(thuesen$blood.glucose,thuesen$short.velocity,use="complete.obs") #   calcola r
+   
+  #0.4167546
+   
+   cor(thuesen,use="complete.obs") # risultati in forma di matrice
+   
+                 # blood.glucose short.velocity
+  # blood.glucose      1.0000000      0.4167546
+  # short.velocity     0.4167546      1.0000000
+   
+   #Per ottenere un p-value, testiamo l'ipotesi nulla r = 0:
+
+   
+   
+   cor.test(thuesen$blood.glucose,thuesen$short.velocity)
+   # notare che non c'è bisogno di specificare cosa fare dei dati mancanti (NA)
+   #Pearson's product-moment correlation
+
+#data:  thuesen$blood.glucose and thuesen$short.velocity
+#t = 2.101, df = 21, p-value = 0.0479                        #p-value poco sotto la soglia del 5%
+#alternative hypothesis: true correlation is not equal to 0
+#95 percent confidence interval:
+ #0.005496682 0.707429479                                    #0 è fuori dall'intervallo di confidenza anche se per poco
+#sample estimates:
+#      cor 
+#0.4167546 
+   
+   #Il test di correlazione usa una variabile che segue la distribuzione t (→ t-test).
+   #Guarda caso, si ottiene lo stesso p-value dell'analisi di regressione! 
+   
+   
+  
+   
+   
+             #Correlazione di Spearman (ρ)
+   
+   #È la variante non-parametrica (→ non presuppone la normalità delle variabili)
+   #della precedente. Si ottiene sostituendo ai valori delle due variabili il loro rango
+   #(→ 'ordine' nella distribuzione) e calcolando la correlazione su questo. 
+   
+   cor.test(thuesen$blood.glucose,thuesen$short.velocity,method="spearman")
+   
+   #Spearman's rank correlation rho
+
+#data:  thuesen$blood.glucose and thuesen$short.velocity
+#S = 1380.4, p-value = 0.1392
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#     rho 
+#   0.318002
+   
+   
+   
+   #esercizio
+   #Ancora sulle misura di altezza, diametro e volume di 31 piante di amarena
+   #(dataset trees).
+   #Calcolare la matrice delle correlazioni secondo Pearson fra le tre variabili.
+   #Effettuare un test di correlazione secondo Spearman fra altezza e diametro. 
+   
+   cor(trees,use="complete.obs")
+             #Girth    Height    Volume
+   #Girth  1.0000000 0.5192801 0.9671194
+   #Height 0.5192801 1.0000000 0.5982497
+   #Volume 0.9671194 0.5982497 1.0000000
+   
+   cor(trees$Volume,trees$Height,use="complete.obs")   
+   #0.5982497
+   
+   cor(trees$Volume,trees$Girth,use="complete.obs")
+   #0.9671194
+   
+   cor(trees$Height,trees$Girth,use="complete.obs")
+   #0.5192801
+   
+   
+   cor.test(trees$Volume,trees$Height)
+  # Pearson's product-moment correlation
+
+#data:  trees$Volume and trees$Height
+#t = 4.0205, df = 29, p-value = 0.0003784
+#alternative hypothesis: true correlation is not equal to 0
+#95 percent confidence interval:
+# 0.3095235 0.7859756
+#sample estimates:
+#      cor 
+#0.5982497 
+   
+   cor.test(trees$Volume,trees$Height,method = "spearman")
+   
+  # Spearman's rank correlation rho
+
+#data:  trees$Volume and trees$Height
+#S = 2089.6, p-value = 0.0006484
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#      rho 
+#0.5787101 
+   
+   
+   
+   
+   cor.test(trees$Volume,trees$Girth)
+   
+  # Pearson's product-moment correlation
+
+#data:  trees$Volume and trees$Girth
+#t = 20.478, df = 29, p-value < 2.2e-16
+#alternative hypothesis: true correlation is not equal to 0
+#95 percent confidence interval:
+# 0.9322519 0.9841887
+#sample estimates:
+#      cor 
+#0.9671194 
+   
+   cor.test(trees$Volume,trees$Girth, method = "s")
+   
+   #Spearman's rank correlation rho
+
+#data:  trees$Volume and trees$Girth
+#S = 224.61, p-value < 2.2e-16
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#      rho 
+#0.9547151 
+   
+   
+   
+   cor.test(trees$Height,trees$Girth)
+   
+   #Pearson's product-moment correlation
+
+#data:  trees$Height and trees$Girth
+#t = 3.2722, df = 29, p-value = 0.002758
+#alternative hypothesis: true correlation is not equal to 0
+#95 percent confidence interval:
+# 0.2021327 0.7378538
+#sample estimates:
+#      cor 
+#0.5192801 
+   
+   cor.test(trees$Height,trees$Girth,method = "s")
+   
+   #Spearman's rank correlation rho
+
+#data:  trees$Height and trees$Girth
+#S = 2773.4, p-value = 0.01306
+#alternative hypothesis: true rho is not equal to 0
+#sample estimates:
+#      rho 
+#0.4408387 
+    
+   
+   
+   
+   
+   
+   
+   
+   #Analisi della Varianza (ANOVA) e test di Kruskal-Wallis
+   
+   
+   #ANOVA ad una via
+   #In maniera intuitiva potremmo definire l'analisi della varianza come un'analisi di
+   #regressione lineare in cui una delle variabili poste a confronto è una variabile
+   #qualitativa (→ fattoriale).
+   #ANOVA ad una via: osservazioni di una variabile quantitativa divise in gruppi
+   #determinati dalla variabile qualitativa. (Nota: al solito, il metodo assume
+    #                                          normalità nella distribuzione dei dati).
+   
+   
+   #f=varianza tra gruppi/varianza entro gruppi
+   #H0 : f = 1
+   #H1 : f > 1
+   
+   #basta che un gruppo abbia varianza maggiore di 1 per rigettare l'ipotesi nulla, poi c'è da capire quale
+   
+   #In R è possibile fare un'ANOVA ad una via con la funzione lm (infatti regressione
+   #lineare e ANOVA sono due casi particolari dello stesso modello).
+
+
+#Esempio.
+   #Abbiamo dati sul livello di folati nei globuli rossi di 22 pazienti, suddivisi in 3
+   #gruppi a seconda del metodo di ventilazione durante l'anestesia. Vogliamo verificare
+   #se i diversi trattamenti hanno effetto sui gruppi di dati. 
+   
+   red.cell.folate=read.table("red.cell.folate.txt",header=TRUE) # importa file
+   str(red.cell.folate) # mostra struttura dati
+   head(red.cell.folate)
+   tail(red.cell.folate)
+   summary(red.cell.folate) # mostra statistiche sommarie
+   mod=lm(folate~ventilation,data=red.cell.folate) # calcola modello
+
+   mod # mostra i coefficienti del modello.   
+
+   #Notare che, in questo caso, la 'intercetta' corrisponde alla media del primo gruppo,
+   #mentre gli altri due valori sono le differenze fra le medie del secondo e terzo gruppo e
+   #questa:
+     m=tapply(red.cell.folate$folate,red.cell.folate$ventilation,mean)
+     m
+   # calcola medie per gruppo
+   m[1]; m[2]-m[1]; m[3]-m[1] # coefficienti del modello   
+
+   anova(mod) # estrazione dell'ANOVA   
+
+   #Analysis of Variance Table
+   
+   #Response: folate
+   #              Df Sum Sq Mean Sq F value  Pr(>F)  
+   #ventilation    2  15516  7757.9  3.7113 0.04359 *   (componente between/tra)
+  #   Residuals   19  39716  2090.3                   (componente within/entro)
+   #---
+    # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+   
+   
+   
+   #La tabella (oltre a ricordare la variabile risposta, folate) descrive:
+    # - componente tra gruppi (between), definita dalla variabile fattoriale (ventilation)
+    #- componente all'interno dei gruppi (within), definita dai residui (Residuals)
+   
+   #Per ognuna di queste si danno:
+  #   - gradi di libertà: n. gruppi – 1 (var. fattoriale); n. osservazioni – n. gruppi – 1 (residui)
+  # - somma dei quadrati delle deviazioni (Sum sq): nel caso 'between' le deviazioni sono
+   #le differenze fra la media per gruppo e la media totale; nel caso 'within' le deviazioni
+   #sono le differenze fra le singole osservazioni e le medie dei rispettivi gruppi.
+   #- quadrati medi (Mean sq = Sum sq/df) → varianze!
+   
+   #C'è poi un F test che mette a confronto le due varianze e calcola un p-value.
+
+   #A questo punto, sappiamo che esiste un 'effetto gruppo'. Ma qual'è il gruppo che ne è
+    #responsabile?
+   
+  # Una prima indicazione la otteniamo scrivendo:
+     summary(mod) # estrae i coefficienti di regressione
+   
