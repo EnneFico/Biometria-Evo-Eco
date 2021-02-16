@@ -578,3 +578,67 @@ wilcox.test(darwin$Height~darwin$Group)
           #considerare questa la risposta ‘esatta’ al nostro problema. L’intervallo di confidenza, invece, include il
           #valore OR = 1, di nuovo entrando in conflitto col p-value. Ma sappiamo che l’intervallo di confidenza è
           #di nuovo frutto di un’approssimazione, mentre il p-value è esatto. 
+
+
+#Esercizio 1. 
+#La seguente tabella di contingenza pone a confronto colore degli occhi e dei capelli in un
+#campione di individui:
+#          Fair eyes Dark eyes
+#Fair hair     38      11
+#Dark hair     14      51
+
+occhicapelli = matrix(c(38,14,11,51),nrow = 2)
+rownames(occhicapelli)= c("Fair hair","Dark hair")
+colnames(occhicapelli)= c("Fair eyes","Dark eyes")
+
+occhicapelli
+
+fisher.test(occhicapelli)
+
+#Fisher's Exact Test for Count Data
+
+#data:  occhicapelli
+#p-value = 2.099e-09
+#alternative hypothesis: true odds ratio is not equal to 1
+#95 percent confidence interval:
+#  4.746351 34.118920
+#sample estimates:
+#odds ratio 
+#  12.22697
+
+#rifiuto H0
+#1 non cade nell'intervallo di confidenza
+#p-value esatto
+
+
+chisq.test(occhicapelli)
+
+#Pearson's Chi-squared test with Yates' continuity correction
+
+#data:  occhicapelli
+#X-squared = 33.112, df = 1, p-value = 8.7e-09
+
+#rifiuto H0
+#pvalue approssimato
+
+#Esercizio 2. 
+#Testare l'ipotesi di indipendenza sulla seguente tabella con status matrimoniale sulle righe e
+#consumo di caffeina sulle colonne utilizzando il test del chi-quadro.
+#             0   1-150  151-300  >300
+#Married     652   1537    598   242
+#Prev.Married 36    46      38    21
+# Single     218   327     106    67 
+coffe = matrix(c(652,36,218,1537,46,327,598,38,106,242,21,67),nrow = 3)
+rownames(coffe)= c("Married","Prev.Married","Single")
+colnames(coffe)= c("0","1-150","151-300",">300")
+coffe
+
+mytest = chisq.test(coffe)
+mytest$expected
+str(mytest)
+
+#per avere più info
+
+mosaicplot(coffe,shade=T)
+
+#per una visualizzazione grafica
