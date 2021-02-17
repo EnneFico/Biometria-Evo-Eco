@@ -1,6 +1,6 @@
 
 
-                                       # Regressione lineare
+                                       #REGRESSIONE LINEARE (variabili quantitative)
 
               #La regressione lineare è il modo più semplice (ed uno dei più usati) per
               #descrivere la relazione fra due variabili quantitative (x, y). 
@@ -135,7 +135,7 @@ abline(mod) # disegna la retta di regressione (y = α + βx)
   
                               #Regressione lineare multipla
   
-   #Si parla di regressione multipla quando abbiamo più di una variabile esplicativa.
+  #Si parla di regressione multipla quando abbiamo più di una variabile esplicativa.
   #E' possibile calcolare una regressione lineare utilizzando la funzione lm inserendo
   #un '+' nella formula fra le due variabili esplicative. 
   
@@ -458,7 +458,7 @@ abline(mod) # disegna la retta di regressione (y = α + βx)
 #sample estimates:
 #      rho 
 #0.4408387 
-    
+   
    
    
    
@@ -497,19 +497,46 @@ abline(mod) # disegna la retta di regressione (y = α + βx)
    str(red.cell.folate) # mostra struttura dati
    head(red.cell.folate)
    tail(red.cell.folate)
-   summary(red.cell.folate) # mostra statistiche sommarie
+   summary(red.cell.folate)
+   red.cell.folate$ventilation=as.factor(red.cell.folate$ventilation) #dobbiamo dire noi che è fattoriale!!!
+   summary(red.cell.folate)
+   
+  # folate          ventilation
+  # Min.   :206.0   N2O+O2,24h:8   
+  # 1st Qu.:249.5   N2O+O2,op :9   
+  # Median :274.0   O2,24h    :5   
+  # Mean   :283.2                  
+  # 3rd Qu.:305.5                  
+  # Max.   :392.0  
+   
+   # mostra statistiche sommarie
    mod=lm(folate~ventilation,data=red.cell.folate) # calcola modello
 
    mod # mostra i coefficienti del modello.   
 
+   #Call:
+   #  lm(formula = folate ~ ventilation, data = red.cell.folate)
+   
+   #Coefficients:
+   #  (Intercept)  ventilationN2O+O2,op     ventilationO2,24h  
+   #   316.62                -60.18                -38.62
+   
+   #quella che viene chiamata intercetta è la media di folation nel primo gruppo "N2O+O2,24h"
+   #secondo valore è la differenza tra la media del secondo gruppo "" e la media del primo gruppo
+   #terzo valore è la differenza tra la media del terzo gruppo e la media del primo gruppo
+   
    #Notare che, in questo caso, la 'intercetta' corrisponde alla media del primo gruppo,
-   #mentre gli altri due valori sono le differenze fra le medie del secondo e terzo gruppo e
-   #questa:
+   #mentre gli altri due valori sono le differenze fra le medie del secondo e terzo gruppo e quella del primo
+   
+   #esplicitando:
      m=tapply(red.cell.folate$folate,red.cell.folate$ventilation,mean)
      m
    # calcola medie per gruppo
    m[1]; m[2]-m[1]; m[3]-m[1] # coefficienti del modello   
 
+   
+   
+   
    anova(mod) # estrazione dell'ANOVA   
 
    #Analysis of Variance Table
@@ -542,3 +569,163 @@ abline(mod) # disegna la retta di regressione (y = α + βx)
   # Una prima indicazione la otteniamo scrivendo:
      summary(mod) # estrae i coefficienti di regressione
    
+     #Call:
+      # lm(formula = folate ~ ventilation, data = red.cell.folate)
+     
+     #Residuals:
+      # Min      1Q  Median      3Q     Max 
+     #-73.625 -35.361  -4.444  35.625  75.375 
+     
+     #Coefficients:
+    #   Estimate Std. Error t value Pr(>|t|)    
+    # (Intercept)            316.62      16.16  19.588 4.65e-14 ***
+     #  ventilationN2O+O2,op   -60.18      22.22  -2.709   0.0139 *  #sembra che il colpevole sia il gruppo numero 2 
+    #   ventilationO2,24h      -38.62      26.06  -1.482   0.1548    
+     #---
+      # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+     
+     #Residual standard error: 45.72 on 19 degrees of freedom
+     #Multiple R-squared:  0.2809,	Adjusted R-squared:  0.2052 
+     #F-statistic: 3.711 on 2 and 19 DF,  p-value: 0.04359
+     
+     #abbiamo delle indicazioni ma non abbiamo tutto
+     
+     
+    #ci serve verificare tutte le combinazione
+     
+     
+     
+     
+
+     
+    # Nell'output, il primo termine (intercept) rappresenta la media del primo gruppo (in
+     #ordine alfabetico). Il secondo ed il terzo termine rappresentano la 'differenza' fra gli altri
+#due gruppi ed il primo. In aggiunta, si verifica che tali differenze siano significative
+#mediante t-tests. 
+     
+     
+     
+     #È spesso preferibile avere confronti fra tutte le possibili coppie di gruppi.
+     
+     #In questo caso si pone il problema della “correzione per test multipli”:
+     #effettuare numerosi test sugli stessi dati comporta un aumento della probabilità di 
+     #avere un test significativo per errore.
+     
+     #La “correzione” corrisponde ad una riduzione della soglia di significatività.
+     
+     #La correzione di Bonferroni, ad esempio, si ottiene moltiplicando i p-values per il numero
+     #di test effettuati.
+     
+     pairwise.t.test(red.cell.folate$folate,red.cell.folate$ventilation,p.adj="bonferroni")
+     # t-test con correzione per test multipli secondo Bonferroni.
+     
+     #Pairwise comparisons using t tests with pooled SD 
+     
+     #data:  red.cell.folate$folate and red.cell.folate$ventilation 
+     
+     #            N2O+O2,24h N2O+O2,op               #tabellina dei p-value corretti
+     #N2O+O2,op   0.042      -        
+    #   O2,24h    0.464      1.000                    se viene fuori un numero più grande di 1 si scrive 1!!!
+     
+     #P value adjustment method: bonferroni 
+     
+     #l'unica significatività che viene fuori è il primo contro il secondo
+     
+     
+    # Presentazione grafica dei risultati
+     boxplot(folate~ventilation,xlab="ventilation",ylab="folate",col=heat.colors(3),las=1,data = red.cell.folate)
+     # disegna boxplots (uno per gruppo) con adeguate labels e colori diversi;
+     # le etichette sull'asse y sono orizzontali (las=1)
+     dev.copy2pdf(file="anova_boxplot.pdf")
+     
+     #commento: primo gruppo media più alta, maggiore varianza,
+     #uno può dire il colpevole è il numero uno o il colpevole è il numero 2
+     #se proprio bisogna tirarne fuori uno tirerei fuori il primo perchè il secondo e il terzo sono più simili
+     #anche il secondo potrebbe essere il colpevole
+     
+     
+     
+     
+     #Esercizio. 
+     #Disponiamo di dati relativi al fattore di crescita insuline-like (igf1) in
+     #1339 individui di età scolare (juul.txt). È possibile raggruppare gli individui in 5
+     #gruppi in base agli stadi di pubertà secondo Tanner. Testare un modello
+     #ANOVA fra la variabile quantitativa igf1 e la variabile qualitativa/fattoriale
+     #tanner. Presentare i risultati con i boxplot.
+     #Attenzione: occhio ai gradi di libertà! 
+     
+     
+     juul.dataset = read.table("juul.txt",header = T)
+     juul.dataset     
+
+     
+     juul.dataset$tanner=as.factor(juul.dataset$tanner)
+     summary(juul.dataset)
+     str(juul.dataset)
+     
+     mod.juul=lm(igf1~tanner,data = juul.dataset)
+mod.juul
+
+
+      #Call:
+      #  lm(formula = igf1 ~ tanner, data = juul.dataset)
+      
+      #Coefficients:
+      #  (Intercept)      tanner2      tanner3      tanner4      tanner5  
+      #207.5        145.2        275.7        305.5        257.9
+
+anova(mod.juul)
+
+      #Analysis of Variance Table
+      
+      #Response: igf1
+      #             Df   Sum Sq Mean Sq F value    Pr(>F)    
+      #tanner        4 12696217 3174054  228.35 < 2.2e-16 ***
+      #  Residuals 787 10939116   13900                        #occhio ai gradi di libertà! si sottraggono i dati mancanti NA più e solitè proprietà
+      #---
+      #  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+
+summary(mod.juul)
+
+      #Call:
+      #  lm(formula = igf1 ~ tanner, data = juul.dataset)
+      
+      #Residuals:
+      #  Min      1Q  Median      3Q     Max 
+      #-365.33  -71.37  -10.24   61.53  448.67 
+      
+      #Coefficients:
+      #  Estimate Std. Error t value Pr(>|t|)    
+      #(Intercept)  207.473      6.685  31.034   <2e-16 ***
+      #  tanner2      145.199     15.597   9.309   <2e-16 ***
+      #  tanner3      275.750     18.804  14.665   <2e-16 ***
+      #  tanner4      305.545     16.863  18.120   <2e-16 ***
+      #  tanner5      257.862      9.477  27.208   <2e-16 ***
+      #  ---
+      #  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+      
+      #Residual standard error: 117.9 on 787 degrees of freedom
+      #(547 observations deleted due to missingness)
+      #Multiple R-squared:  0.5372,	Adjusted R-squared:  0.5348   #varia tra 0 e 1 dove 0
+      #F-statistic: 228.4 on 4 and 787 DF,  p-value: < 2.2e-16
+
+
+pairwise.t.test(juul.dataset$igf1,juul.dataset$tanner,p.adj="bonferroni",)
+
+      #Pairwise comparisons using t tests with pooled SD 
+      
+      #data:  juul.dataset$igf1 and juul.dataset$tanner 
+      
+      #     1       2       3     4    
+      #  2 < 2e-16 -       -     -    
+      #  3 < 2e-16 9.9e-08 -     -    
+      #  4 < 2e-16 5.5e-13 1.000 -    
+      #  5 < 2e-16 1.3e-11 1.000 0.048
+
+      #P value adjustment method: bonferroni
+
+boxplot(igf1~tanner,xlab="tanner",ylab="igf1",col=heat.colors(5),las=1,data = juul.dataset, notch = T)
+
+   #pallini vengono identificati come outliers, a volte bisogna porvi attenzione, potrebbe essere che
+   #le assunzioni di normalità dei residui potrebbero entrare in crisi
