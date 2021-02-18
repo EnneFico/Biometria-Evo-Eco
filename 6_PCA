@@ -59,7 +59,7 @@ library(ade4)
   
   #Ã evidente che le diverse variabili hanno diversa scala e varianza (oltre che unitÃ  di misura), quindi
   #non câÃ¨ il minimo dubbio che il bilanciamento vada effettuato. Come si diceva, la funzione dudi.pca
-  #contiene due argomenti â center, scale â che permettono di svolgere automaticamente il
+  #contiene due argomenti â center, scale  che permettono di svolgere automaticamente il
   #bilanciamento. Procediamo dunque allâanalisi per il momento escludendo la variabile SO2, che
   #notoriamente Ã¨ un indicatore del livello di inquinamento, ed eseguiamo la PCA con le 6 rimanenti
   #variabili. 
@@ -88,8 +88,8 @@ pca1=dudi.pca(data[,-1],center=T,scale=T)
   #other elements: cent norm 
   
   
-  #Come facciamo a sapere la percentuale di varianza che queste âtrattengonoâ? Ã unâinformazione
-  #che possiamo recuperare âex postâ con la seguente linea di comando:
+  #Come facciamo a sapere la percentuale di varianza che queste trattengonoâ? è un'informazione
+  #che possiamo recuperare ex post con la seguente linea di comando:
   
 perc.eig=100 * pca1$eig/sum(pca1$eig)
     perc.eig
