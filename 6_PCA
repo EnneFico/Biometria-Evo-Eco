@@ -1,1 +1,229 @@
 
+install.packages("ade4")
+
+library(ade4)
+
+                                    #ANALISI MULTIVARIATE
+                                      
+      #puntano a estrarre il âsegnaleâ nei dati in presenza di un ârumore di fondoâ.
+      #Per queste ragioni le analisi multivariate solitamente sono metodi âapertiâ, ovvero non c'Ã¨
+      #un'ipotesi (nulla) da testare.
+      
+      
+      #I maggiori obiettivi dei metodi multivariati sono:
+      #1) riduzione della dimensionalitÃ  (analisi esploratorie, semplificazione dei dati). Tipici metodi che
+      #puntano a questo obiettivo sono lâAnalisi delle Componenti Principali (Principal Component
+      #Analysis, o PCA) e il Multi-Dimensional Scaling (MDS);
+      
+      #2) ricerca di gruppi e classificazione (valutazione del grado di omogeneitÃ  all'interno delle
+      #osservazioni; attribuzione a classi predefinite). In questo corso tratteremo di alcuni metodi di
+      #clustering (clustering gerarchico, k-means) e dellâanalisi discriminante lineare 
+
+                                                 #PCA 
+
+      #La funzione dudi.pca contiene argomenti per effettuare un bilanciamento preliminare delle variabili
+      #alle quali vogliamo applicare la PCA
+      
+      # la PCA Ã¨ scale-dependent, ovvero i suoi risultati sono influenzati dalle dimensioni delle variabili.
+      
+      # CiÃ² significa che variabili con maggiore scala e varianza hanno un impatto maggiore sui
+      #risultati di quelle con minore scala e varianza.
+      
+      #il bilanciamento avviene in due passi:
+
+#1) centratura: tutte le variabili sono trasformate in modo tale da avere media = 0;
+#2) ridimensionamento: tutte le variabili sono trasformate in modo tale da avere deviazione standard = 1. 
+
+
+
+      #Il bilanciamento va sempre effettuato? La risposta Ã¨ sÃ¬, a meno che non ci siano dei buoni motivi
+      #per fare diversamente. Casi tipici in cui non si effettua il bilanciamento â o lo si fa soltanto in parte,
+      #ad es. eseguendo la centratura ma non il ridimensionamento â sono quelli in cui le variabili hanno la
+      #natura di conteggi (frequenze assolute) o quando si ha a che fare con dati genetici (che, come
+      #vedremo piÃ¹ avanti, sono trattati dalla PCA come dati di frequenza). 
+
+
+
+#ESEMPIO
+#Proviamo a fare un esperimento di PCA con un dataset di esempio, il file usair.csv. I dati includono
+#sette variabili climatologiche/ambientali osservate in 41 cittÃ  americane. PiÃ¹ precisamente, le
+#variabili sono: concentrazione del diossido di zolfo o anidride solforosa (SO2), temperatura
+#negativa (Neg.Temp), manifattura (Manuf), popolazione (Pop), ventositÃ  (Wind), precipitazioni
+#(Precip), giorni di precipitazioni (Day).
+
+#Importiamo i dati:
+  data=read.csv("usair.csv")
+#ed esploriamo la loro variabilitÃ :
+  summary(data)
+
+  
+  #Ã evidente che le diverse variabili hanno diversa scala e varianza (oltre che unitÃ  di misura), quindi
+  #non câÃ¨ il minimo dubbio che il bilanciamento vada effettuato. Come si diceva, la funzione dudi.pca
+  #contiene due argomenti â center, scale â che permettono di svolgere automaticamente il
+  #bilanciamento. Procediamo dunque allâanalisi per il momento escludendo la variabile SO2, che
+  #notoriamente Ã¨ un indicatore del livello di inquinamento, ed eseguiamo la PCA con le 6 rimanenti
+  #variabili. 
+  
+pca1=dudi.pca(data[,-1],center=T,scale=T)
+  #scelta del numero di componenti: 6
+
+  #Duality diagramm
+  #class: pca dudi
+  #$call: dudi.pca(df = data[, -1], center = T, scale = T)
+  
+  #$nf: 6 axis-components saved
+  #$rank: 6
+  #eigen values: 2.196 1.5 1.395 0.7602 0.1146 ...
+  #vector length mode    content       
+  #1 $cw    6      numeric column weights
+  #2 $lw    41     numeric row weights   
+  #3 $eig   6      numeric eigen values  
+  
+  #data.frame nrow ncol content             
+  #1 $tab       41   6    modified array      
+  #2 $li        41   6    row coordinates     
+  #3 $l1        41   6    row normed scores   
+  #4 $co        6    6    column coordinates  
+  #5 $c1        6    6    column normed scores
+  #other elements: cent norm 
+  
+  
+  #Come facciamo a sapere la percentuale di varianza che queste âtrattengonoâ? Ã unâinformazione
+  #che possiamo recuperare âex postâ con la seguente linea di comando:
+  
+perc.eig=100 * pca1$eig/sum(pca1$eig)
+    perc.eig
+    #[1] 36.6027107 24.9990572 23.2441520 12.6704481  1.9095109  0.5741211
+    
+    cumsum(perc.eig)
+    #[1]  36.60271  61.60177  84.84592  97.51637  99.42588 100.00000
+    #osservo che la varianza Ã¨ contenuta principalmente nelle prime 3 componenti
+    
+    #provo la PCA con 3 componenti
+    
+    pca1=dudi.pca(data[,-1],center=T,scale=T)
+    pca1
+  
+    #Duality diagramm
+    #class: pca dudi
+    #$call: dudi.pca(df = data[, -1], center = T, scale = T)
+    
+    #$nf: 3 axis-components saved
+    #$rank: 6
+    #eigen values: 2.196 1.5 1.395 0.7602 0.1146 ...
+    #vector length mode    content       
+    #1 $cw    6      numeric column weights
+    #2 $lw    41     numeric row weights   
+    #3 $eig   6      numeric eigen values  
+    
+    #data.frame nrow ncol content             
+    #1 $tab       41   6    modified array      
+    #2 $li        41   3    row coordinates     
+    #3 $l1        41   3    row normed scores   
+    #4 $co        6    3    column coordinates  
+    #5 $c1        6    3    column normed scores
+    #other elements: cent norm 
+    
+    
+    
+    #Ora spostiamo la nostra attenzione sull'oggetto pca1: Ã¨ formato da diversi elementi o âslotsâ,
+#ognuno dei quali contiene diverse porzioni dei risultati della PCA. Ne viene fornito un sintetico
+#elenco chiedendo di vedere lâoggetto (cioÃ¨ scrivendo pca1 ed invio), ma non vengono mostrati, a
+#meno di esplicita richiesta. Tra questi, i piÃ¹ importanti sono:
+    
+    
+    pca1$call # mostra la chiamata (call) che ha generato questa specifica analisi,
+    pca1$tab # questa sezione contiene i dati di input dopo il bilanciamento,
+    pca1$eig # come osservato prima, qui c'Ã¨ la serie completa degli eigenvalues,
+    pca1$rank # Ã¨ il rango, che in questo caso coincide col numero di variabili indipendenti iniziali,
+    pca1$c1 # loadings delle componenti principali (vedi sotto),
+    pca1$li # scores (punteggi) delle componenti principali (vedi sotto).
+    
+    pca1$c1
+    
+    plot(pca1$li[,1],pca1$li[,2],xlab="PC1",ylab="PC2",type="n")
+    text(pca1$li[,1],pca1$li[,2],labels=abbreviate(row.names(data)),cex=0.7)
+
+par(mfrow=c(1,2))    
+    
+    lab1=paste("PC1 (",round(perc.eig[1],2),"% of total variance)",sep="")
+    lab2=paste("PC2 (",round(perc.eig[2],2),"% of total variance)",sep="")
+    plot(pca1$li[,1],pca1$li[,2],xlab=lab1,ylab=lab2,sep="",type="n")
+text(pca1$li[,1],pca1$li[,2],labels=abbreviate(row.names(data)),cex=0.7)    
+
+add.scatter.eig(pca1$eig,nf=3,xax=1,yax=2,posi="bottomleft")
+
+    #rappresento i loadings
+
+s.corcircle(pca1$c1,xax=1,yax=2)
+
+
+#le indicazioni che ci da l'analisi sono
+#ciÃ² che Ã¨ piÃ¹ importante per Chigago sono le manufacture e population nella PC1
+#che che determina il gradiente da Phnx a Buffalo sono le precipitazioni e i giorni di precipitazione nella PC2
+
+
+#Quando abbiamo iniziato la nostra analisi, abbiamo escluso una delle variabili (SO2) dai calcoli.
+#CiÃ² perchÃ© la SO2 Ã¨ un indicatore dell'inquinamento ambientale, e puÃ² essere interessante verificare
+#la relazione tra l'inquinamento e tutte le altre variabili sintetizzate dalla PCA. Un modo semplice
+#per farlo Ã¨ attraverso una regressione lineare tra SO2 e le componenti principali.
+#Per la prima componente principale:
+
+  summary(lm(data$SO2~pca1$li[,1])) 
+
+  #Call:
+  #  lm(formula = data$SO2 ~ pca1$li[, 1])
+  
+  #Residuals:
+  #  Min      1Q  Median      3Q     Max 
+  #-32.875 -13.057  -2.867  11.143  63.256 
+  
+  #Coefficients:
+   # Estimate Std. Error t value Pr(>|t|)    
+  #(Intercept)    30.049      2.866   10.48 6.61e-13 ***
+  #  pca1$li[, 1]   -9.942      1.934   -5.14 8.04e-06 ***  #forte relazione cola la PC1
+   # ---
+  #  Signif. codes:  0 â***â 0.001 â**â 0.01 â*â 0.05 â.â 0.1 â â 1
+  
+  #Residual standard error: 18.35 on 39 degrees of freedom
+  #Multiple R-squared:  0.4039,	Adjusted R-squared:  0.3886 
+  #F-statistic: 26.42 on 1 and 39 DF,  p-value: 8.043e-06
+  
+  summary(lm(data$SO2~pca1$li[,2])) 
+  
+  #Coefficients:
+  #  Estimate Std. Error t value Pr(>|t|)    
+  #(Intercept)    30.049      3.686   8.151 5.95e-10 ***
+  #  pca1$li[, 2]    2.240      3.010   0.744    0.461    #poca relazione con la PC2
+  
+  
+  
+  
+  #faccio i grafici per la PC2 e PC3
+  
+  par(mfrow=c(1,2))    
+  
+  lab1=paste("PC2 (",round(perc.eig[2],2),"% of total variance)",sep="")
+  lab2=paste("PC3 (",round(perc.eig[3],2),"% of total variance)",sep="")
+  plot(pca1$li[,2],pca1$li[,3],xlab=lab1,ylab=lab2,sep="",type="n")
+  text(pca1$li[,2],pca1$li[,3],labels=abbreviate(row.names(data)),cex=0.7)    
+  
+  add.scatter.eig(pca1$eig,nf=3,xax=1,yax=2,posi="bottomleft")
+  
+  s.corcircle(pca1$c1,xax=2,yax=3)
+#la componente principale 3 e guidata dalla Neg.Temp
+    
+  
+  summary(lm(data$SO2~pca1$li[,3])) 
+
+  #SO2 non Ã¨ legata alla temperatura  
+  
+  install.packages("rgl")
+  install.packages("pca3d")
+  library(pca3d)
+  library(rgl)
+pca3d <- prcomp(data[,-1],center=T,scale=T)  
+
+pca3d(pca3d)
+
+plot3d(pca3d$x)
