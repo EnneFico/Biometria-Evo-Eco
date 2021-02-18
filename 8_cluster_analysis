@@ -1,1 +1,181 @@
 
+data(iris)
+
+#METODI DI CLUSTERING GERARCHICO AGGLOMERATIVO
+
+#matrice di distanza                   #punto di partenza
+iris.dist=dist(scale(iris[,-5]))
+
+
+                               #metodo del complete linkage 
+
+# la distanza fra una coppia di clusters è definita come il massimo
+#valore di tutte le possibili distanze a coppie fra elementi del primo cluster ed elementi del secondo
+#cluster. 
+#prende la distaza più alta tra gruppo uno e gruppo due
+#esalta/sovrastima le distanze tra i gruppi
+
+iris.hc=hclust(iris.dist)
+
+plot(iris.hc)
+
+plot(iris.hc,labels=iris[,5],cex=0.6)
+
+#Nel nostro caso sappiamo a priori che i dati si riferiscono a tre specie di iris, quindi è senz’altro
+#interessante ‘dividere’ l’albero in tre clusters principali. Lo facciamo utilizzando le funzioni
+#‘rect.hclust’ e ‘cutree’: 
+
+rect.hclust(iris.hc,k=3,border=2:4)
+#La prima funzione aggiunge al plot rettangoli che identificano i gruppi ricercati. L’argomento ‘k’
+#ovviamente si riferisce al numero di clusters, mentre l’argomento ‘border’ specifica i colori dei
+#rettangoli.
+
+iris.hc3=cutree(iris.hc,k=3) 
+#La seconda funzione invece restituisce un vettore con l’appartenenza di ogni singola
+#osservazione ad uno dei tre gruppi evidenziati. 
+
+
+
+                #di solito non ci troviamo in questa situazione; cioè difficilmente abbiamo
+                #un’idea a priori di quanti siano i gruppi presenti nei dati. 
+
+
+#A questo punto possiamo testare la performance del metodo confrontando l’appartenenza alle tre specie
+#con l’appartenenza ai tre gruppi: 
+
+table(iris$Species,iris.hc3) 
+
+#iris.hc3
+#            1  2  3
+#setosa     49  1  0
+#versicolor  0 21 29
+#virginica   0  2 48
+
+
+#Appare chiaro che la specie setosa è ben riconosciuta dal metodo di complete linkage, ma versicolor e
+#virginica non sono ben risolti. 
+
+                                        #Procediamo col metodo della media
+
+#il criterio con cui vengono ricalcolate le distanze tra gruppi è il seguente: 
+#la distanza fra un cluster a ed un cluster b è la media fra tutte le distanze
+#possibili fra gli elementi del cluster a e quelli del cluster b.
+
+#l’algoritmo procederà riunendo i gruppi con minore distanza.
+
+iris.ha=hclust(iris.dist,method="average") 
+plot(iris.ha,labels=iris[,5],cex=0.6)
+rect.hclust(iris.ha,k=3,border = 2:4)
+iris.ha3=cutree(iris.ha,k=3)
+table(iris$Species,iris.ha3) 
+
+#Al termine dei confronti, constatiamo che il metodo della media fa un ottimo lavoro per quel che
+#riguarda la specie ‘setosa’, ma di nuovo la separazione fra ‘versicolor’ e ‘virginica’ non è ben risolta. 
+
+
+                                      #metodo di Ward, o della varianza
+
+#Questo metodo minimizza la varianza totale
+#all’interno dei clusters, il che significa che ad ogni passaggio viene riunita 
+#quella coppia di clusters che porta al minimo accrescimento della varianza totale.
+
+iris.hw=hclust(iris.dist,method="ward.D")
+plot(iris.hw,labels=iris[,5],cex=0.6)
+rect.hclust(iris.hw,k=3,border = 2:4)
+iris.hw3=cutree(iris.hw,k=3)
+table(iris$Species,iris.hw3)
+
+
+#Anche il metodo di Ward restituisce buona corrispondenza per qual che riguarda “setosa”, mentre
+#“versicolor” e “virginica” non sono ben risolti.
+
+
+
+
+#Tirando le somme, i risultati ottenuti finora suggeriscono che: 
+  
+ # 1) “setosa” è chiaramente identificata in tutti i casi 
+ # 2) “versicolor” e “virginica” non lo sono, almeno coi dati (set di variabili) a disposizione. 
+
+
+#Esistono anche metodi per ‘validare’ i clusters, cioè per stimare la validità statistica degli stessi, come
+#vedremo in seguito. 
+
+
+
+
+#METODO DI CLUSTERING NON GERARCHICO AGGLOMERATIVO
+
+#K-MEANS
+
+iris.km=kmeans(scale(iris[,-5]),centers=3,nstart=15) 
+
+#Si noti che il primo argomento di ‘kmeans’ è il dataset bilanciato e non una matrice di distanze (anche
+#se poi il metodo ricorrerà comunque a misure di distanza durante i calcoli). 
+#Il secondo argomento è il numero di centri, vale a dire il valore di k desiderato. 
+#In questo caso selezioniamo k = 3 perché a priori sappiamo che il dataset contiene tre specie
+
+# L’ultimo argomento, ‘nstart’, implementa diverse
+#condizioni di partenza (ognuna delle quali è casuale) e sceglie fra queste la migliore possibile. 
+
+#L’output di ‘kmeans’ è un oggetto complesso composto di diverse ‘sezioni’ (per dettagli: ?kmeans). Le
+#più importanti di queste sono:
+
+  iris.km$cluster # un vettore che indica l’assegnazione finale per ogni punto (osservazione)
+iris.km$centers # una matrice coi centri dei clusters
+iris.km$size # numero di punti per ogni cluster 
+
+#Controlliamo ora la corrispondenza fra clusters e specie di iris:
+  table(iris$Species,iris.km$cluster)
+
+  
+  #Vediamo che k-means ha una performance migliore dei metodi gerarchici visti sopra. Cionondimeno la
+  #separazione fra “versicolor” e “virginica” resta imperfetta, per cui valgono le stesse considerazioni che
+  #abbiamo fatto al termine dei metodi gerarchici. 
+  
+  
+  #Non esiste un metodo specifico per rappresentare graficamente il k-means, tuttavia possiamo generare
+  #uno scatterplot (o meglio un pannello di scatterplots) coi punti colorati ad hoc:
+    mypal=c("red","green","blue")
+  plot(iris[,1:4],col=mypal[iris.km$cluster]) 
+
+  
+  
+  #QUALE VALORE DI K È IL MIGLIORE? 
+  
+  #Esistono diversi metodi per valutare il k migliore e quasi tutti funzionano a posteriori: questo significa
+  #che prima dobbiamo provare kmeans per diversi valori di k e poi applicare un criterio per identificare la
+  #performance apparentemente migliore.
+  
+  #Ne vediamo uno
+  #il cosiddetto metodo del ‘gomito’ (elbow).
+  #Ricordiamo che l’obiettivo del k-means è creare k clusters in modo tale che la varianza all’interno dei
+  #gruppi sia la minima possibile. Allora, per ogni valore di k, possiamo esaminare la varianza totale dei
+  #clusters; nel caso k=3: 
+  
+  iris.km$tot.withinss # la varianza totale è circa 139 
+
+ # Ci aspettiamo che, aumentando il numero di k, la varianza totale dei clusters diminuisca, perché questi
+#  diventeranno sempre più omogenei. E lo possiamo vedere facilmente:
+    kmeans(scale(iris[,-5]),centers=1,nstart=10)$tot.withinss
+  kmeans(scale(iris[,-5]),centers=2,nstart=10)$tot.withinss
+  kmeans(scale(iris[,-5]),centers=3,nstart=10)$tot.withinss
+  kmeans(scale(iris[,-5]),centers=4,nstart=10)$tot.withinss
+  kmeans(scale(iris[,-5]),centers=5,nstart=10)$tot.withinss  
+
+  tot.var=vector("numeric",10)  
+
+  
+  for (i in 1:10) {
+    tot.var[i]=kmeans(scale(iris[,-5]),centers=i,nstart=10)$tot.withinss
+  }  
+
+  plot(1:10,tot.var,type="b",xlab="number of centers",ylab="total variance")  
+
+  
+  #Si tratta di uno scatterplot dove l’argomento ‘type="b"’ introduce una linea spezzata che unisce i punti.
+  #Ora, il criterio del ‘gomito’ prevede per l’appunto che il valore di k ‘migliore’ è quello in cui la ‘curva’
+  #che unisce i punti fa un ‘gomito’. Nel presente caso è abbastanza chiaro che il valore 3 è perfettamente
+  #compatibile col criterio, ed incidentalmente coincide col numero di specie presenti nei dati.   
+  
+  
