@@ -1,0 +1,44 @@
+library(ade4)
+data(iris)
+
+iris$Species=as.factor(iris$Species)
+summary(iris)
+
+pca.iris <- dudi.pca(iris[,-5],center = T, scale =T)
+
+pca.iris
+
+perc.eig.iris=100 * pca.iris$eig/sum(pca.iris$eig)
+cumsum(perc.eig.iris)
+
+
+
+lab1=paste("PC1 (",round(perc.eig.iris[1],2),"% of total variance)",sep="")
+lab2=paste("PC2 (",round(perc.eig.iris[2],2),"% of total variance)",sep="")
+plot(pca.iris$li[,1],pca.iris$li[,2],xlab=lab1,ylab=lab2,sep="",type="n")
+text(pca.iris$li[,1],pca.iris$li[,2],labels=abbreviate(iris$Species),cex=0.7)  
+
+s.label(pca.iris$li,xax=1,yax=2)
+add.scatter.eig(pca.iris$eig,nf=2,xax=1,yax=2,posi="topright")
+
+s.corcircle(pca.iris$c1,xax=1,yax=2)
+
+summary(lm(iris$Sepal.Width~pca.iris$li[,1])) 
+
+colore=c(rep("red",50),rep("blue",50),rep("green",50))
+
+caratteri=ifelse(iris$Species=="setosa",17,ifelse(iris$Species=="versicolor",18,19))
+
+plot(pca.iris$li[,1],pca.iris$li[,2],xlab=lab1,ylab=lab2,sep="",type="n")
+text(pca.iris$li[,1],pca.iris$li[,2],labels=abbreviate(iris$Species),cex=0.7,col=colore,pch=caratteri)
+
+
+
+
+summary(iris)
+plot(pca.iris$li[,1],pca.iris$li[,2],xlab=lab1,ylab=lab2,sep="",type="p",col=colore,pch=caratteri)
+legend("topright", legend = unique(iris$Species), col = unique(colore), pch = unique(caratteri) )
+
+
+s.class(pca.iris$li,fac= iris$Species, xax = 1,yax = 2, col = unique(colore), pch = caratteri) #ellissi intorno ai punti sono gli intervalli di confidenza dei gruppi
+
